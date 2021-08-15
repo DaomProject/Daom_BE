@@ -1,27 +1,8 @@
 package com.daom.repository;
 
 import com.daom.domain.Member;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.persistence.EntityManager;
-
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
-    private final EntityManager em;
-
-    public void save(Member member){
-        em.persist(member);
-    }
-
-    public void delete(Member member){
-        em.remove(member);
-    }
-
-    public Member findById(Long memberId){
-        Member findMember = em.find(Member.class, memberId);
-
-        return findMember;
-    }
+// SPRING JPA --쉽게 --> Spring DATA JPA
+public interface MemberRepository extends JpaRepository<Member, Long> {
 }

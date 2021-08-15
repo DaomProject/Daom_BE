@@ -19,9 +19,9 @@ public class Student {
     @JoinColumn(name = "member_id") // FK 생성
     private Member member;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "major_id")
-//    private Major major;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "major_id")
+    private Major major;
 
     @Column(nullable = false)
     private String nickname;

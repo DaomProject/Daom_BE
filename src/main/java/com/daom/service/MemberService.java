@@ -2,9 +2,7 @@ package com.daom.service;
 
 import com.daom.domain.Member;
 import com.daom.repository.MemberRepository;
-import com.daom.repository.MemberRepositoryNew;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MemberService {
 
-    private final MemberRepositoryNew memberRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void save(Member member){
