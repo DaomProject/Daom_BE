@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 
 @NoArgsConstructor
 @Getter
@@ -35,6 +36,12 @@ public class Shop {
 
     @Column(nullable = false, name ="is_premium")
     private Boolean isPremium;
+
+    @Column(nullable = false, name = "start_time")
+    private LocalTime startTime;
+
+    @Column(nullable = false, name = "end_time")
+    private LocalTime endTime;
 
     @Column(nullable = false, name ="like_num")
     private Long like;
