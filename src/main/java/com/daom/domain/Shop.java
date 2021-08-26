@@ -46,9 +46,6 @@ public class Shop {
     @Column(nullable = false, name = "location_y")
     private Double locY;
 
-    @Column(nullable = false, name = "is_premium")
-    private Boolean isPremium;
-
     @Column(nullable = false, name = "start_time")
     private LocalTime startTime;
 
