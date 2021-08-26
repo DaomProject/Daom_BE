@@ -20,11 +20,11 @@ public class MemberController {
     private final ResponseService responseService;
     private final MemberService memberService;
 
-    @PostMapping
-    public String save(@RequestBody Member member) {
-        memberService.save(member);
-        return "Done";
-    }
+//    @PostMapping
+//    public String save(@RequestBody Member member) {
+//        memberService.save(member);
+//        return "Done";
+//    }
 
     @GetMapping("/{id}")
     public Member findById(@PathVariable Long id) {
