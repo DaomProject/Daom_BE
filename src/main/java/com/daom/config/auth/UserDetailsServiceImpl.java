@@ -1,6 +1,7 @@
 package com.daom.config.auth;
 
 import com.daom.domain.Member;
+import com.daom.domain.Shop;
 import com.daom.exception.NoSuchUserException;
 import com.daom.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

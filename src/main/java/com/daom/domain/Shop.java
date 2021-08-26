@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NoArgsConstructor
@@ -11,7 +13,8 @@ import java.time.LocalTime;
 @Entity
 public class Shop {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_id")
     private Long id;
 
@@ -23,18 +26,27 @@ public class Shop {
     private String name;
 
     @Column(nullable = false)
+    private String tel;
+
+    @Column(nullable = false, name = "jehue_desc")
+    private String jehueDesc;
+
+    @Column(nullable = false, name="is_premium")
+    private Boolean isPremium;
+
+    @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, name ="loc_desc")
+    @Column(nullable = false, name = "loc_desc")
     private String locDesc;
 
-    @Column(nullable = false, name ="location_x")
+    @Column(nullable = false, name = "location_x")
     private Double locX;
 
-    @Column(nullable = false, name ="location_y")
+    @Column(nullable = false, name = "location_y")
     private Double locY;
 
-    @Column(nullable = false, name ="is_premium")
+    @Column(nullable = false, name = "is_premium")
     private Boolean isPremium;
 
     @Column(nullable = false, name = "start_time")
@@ -43,9 +55,11 @@ public class Shop {
     @Column(nullable = false, name = "end_time")
     private LocalTime endTime;
 
-    @Column(nullable = false, name ="like_num")
+    @Column(nullable = false, name = "like_num")
     private Long like;
-    @Column(nullable = false, name ="unlike_num")
+
+    @Column(nullable = false, name = "unlike_num")
     private Long unlike;
 
+    //썸네일 관련 TODO
 }

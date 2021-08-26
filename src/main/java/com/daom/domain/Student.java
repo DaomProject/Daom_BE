@@ -43,6 +43,8 @@ public class Student {
     @Column(nullable = false)
     private String grade;
 
+    // 프로필 이미지 관련 TODO
+
     @Builder
     public Student(Member member, String nickname, String univName, Long admissionYear) {
         this.member = member;
