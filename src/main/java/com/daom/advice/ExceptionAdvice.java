@@ -2,6 +2,7 @@ package com.daom.advice;
 
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.NoSuchUserException;
+import com.daom.exception.UnivNameNotFoundException;
 import com.daom.exception.UsernameDuplicationException;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,11 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RestResponse usernameDuplicationException(){
         return responseService.getFailResponse(-1001, "중복된 회원 아이디입니다.");
+    }
+
+    @ExceptionHandler(UnivNameNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse univNameNotFoundException(){
+        return responseService.getFailResponse(-1002, "해당 이름으로 등록된 대학교 이름이 없습니다.");
     }
 }

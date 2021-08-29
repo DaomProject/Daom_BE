@@ -3,16 +3,21 @@ package com.daom.service;
 import com.daom.domain.Member;
 import com.daom.domain.Role;
 import com.daom.domain.Student;
+import com.daom.domain.Univ;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.StudentJoinDto;
 import com.daom.exception.NoSuchUserException;
+import com.daom.exception.UnivNameNotFoundException;
 import com.daom.exception.UsernameDuplicationException;
 import com.daom.repository.MemberRepository;
 import com.daom.repository.StudentRepository;
+import com.daom.repository.UnivRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +27,11 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UnivRepository univRepository;
 
     @Transactional
     public Long saveStudent(StudentJoinDto studentJoinDto) {
+        // 비밀번호 인코딩
         String encodedPassword = passwordEncoder.encode(studentJoinDto.getPassword());
         studentJoinDto.setPassword(encodedPassword);
 
@@ -35,11 +42,15 @@ public class MemberService {
             throw new UsernameDuplicationException();
         }
 
+        // 멤버 생성
         Member newMember = new Member(studentJoinDto.getUsername(), studentJoinDto.getPassword(), Role.STUDENT);
+        // 학교 조회
+        Univ findUniv = univRepository.findByName(studentJoinDto.getUnivName()).orElseThrow(UnivNameNotFoundException::new);
+
         Student newStudent = Student.builder()
                 .member(newMember)
                 .admissionYear(studentJoinDto.getAdmissionYear())
-                .univName(studentJoinDto.getUnivName())
+                .univ(findUniv)
                 .nickname(studentJoinDto.getNickname())
                 .build();
 

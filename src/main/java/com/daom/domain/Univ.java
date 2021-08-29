@@ -16,4 +16,8 @@ public class Univ {
 
     @Column(nullable = false)
     private String name;
+
+    public Univ(String name) {
+        this.name = name;
+    }
 }

@@ -3,11 +3,14 @@ package com.daom.service;
 import com.daom.domain.Member;
 import com.daom.domain.Role;
 import com.daom.domain.Student;
+import com.daom.domain.Univ;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.StudentJoinDto;
+import com.daom.exception.UnivNameNotFoundException;
 import com.daom.exception.UsernameDuplicationException;
 import com.daom.repository.MemberRepository;
 import com.daom.repository.StudentRepository;
+import com.daom.repository.UnivRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +45,9 @@ class MemberServiceUnitTest{
     @Mock
     private StudentRepository studentRepository;
 
+    @Mock
+    private UnivRepository univRepository;
+
     @Spy
     PasswordEncoder passwordEncoder;
 
@@ -55,9 +61,11 @@ class MemberServiceUnitTest{
         final String encodedPw = encoder.encode(studentJoinDto.getPassword());
 
         Member newMember = new Member(studentJoinDto.getUsername(), encodedPw, Role.STUDENT);
+        Univ univ = new Univ("testUniv");
 
         //when
         Mockito.doReturn(Optional.empty()).when(memberRepository).findByUsername(studentJoinDto.getUsername());
+        Mockito.doReturn(Optional.of(univ)).when(univRepository).findByName(studentJoinDto.getUnivName());
 
         Long savedMemberId = memberService.saveStudent(studentJoinDto);
         Mockito.doReturn(Optional.of(newMember)).when(memberRepository).findById(savedMemberId);
@@ -82,10 +90,10 @@ class MemberServiceUnitTest{
         final PasswordEncoder encoder = new BCryptPasswordEncoder();
         final String encodedPw = encoder.encode(studentJoinDto.getPassword());
 
-        Member newMember = new Member(studentJoinDto.getUsername(), encodedPw, Role.STUDENT);
+        Member dupMember = new Member(studentJoinDto.getUsername(), encodedPw, Role.STUDENT);
 
         //when
-        Mockito.doReturn(Optional.of(newMember)).when(memberRepository).findByUsername(studentJoinDto.getUsername());
+        Mockito.doReturn(Optional.of(dupMember)).when(memberRepository).findByUsername(studentJoinDto.getUsername());
 
         //then
         assertThrows(UsernameDuplicationException.class, ()->{
@@ -96,6 +104,25 @@ class MemberServiceUnitTest{
         Mockito.verify(passwordEncoder,Mockito.times(1)).encode(any(String.class));
         Mockito.verify(memberRepository,Mockito.times(1)).findByUsername(any(String.class));
     }
+
+    @DisplayName("[학생] 존재하지 않는 대학 이름으로 회원가입 실패")
+    @Test
+    void saveUnivNotFoundFail() {
+        //given
+        StudentJoinDto studentJoinDto = makeStudentJoinDto();
+
+        //when
+        Mockito.doReturn(Optional.empty()).when(memberRepository).findByUsername(studentJoinDto.getUsername());
+        Mockito.doReturn(Optional.empty()).when(univRepository).findByName(studentJoinDto.getUnivName());
+
+        //then
+        assertThrows(UnivNameNotFoundException.class, ()-> memberService.saveStudent(studentJoinDto));
+
+        //verify
+        Mockito.verify(passwordEncoder,Mockito.times(1)).encode(any(String.class));
+        Mockito.verify(memberRepository,Mockito.times(1)).findByUsername(any(String.class));
+    }
+
 
     @DisplayName("[업체] 회원가입 성공")
     @Test

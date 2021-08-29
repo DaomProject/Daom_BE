@@ -20,16 +20,13 @@ public class Student {
     @JoinColumn(name = "member_id") // FK 생성
     private Member member;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "major_id")
-//    private Major major;
-
     @Column(nullable = false)
     private String nickname;
 
-    // 재학중인 대학이름
-    @Column(name = "univ_name",nullable = false)
-    private String univName;
+    // 재학중인 대학교
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "univ_id")
+    private Univ univ;
 
     // 입학년도
     @Column(name = "admission_year", nullable = false)
@@ -39,19 +36,19 @@ public class Student {
     @Column(nullable = false)
     private Long point;
 
-    // 등급 칭호
+    // 레벨
     @Column(nullable = false)
-    private String grade;
+    private Long grade;
 
     // 프로필 이미지 관련 TODO
 
     @Builder
-    public Student(Member member, String nickname, String univName, Long admissionYear) {
+    public Student(Member member, String nickname, Univ univ, Long admissionYear) {
         this.member = member;
         this.nickname = nickname;
-        this.univName = univName;
+        this.univ = univ;
         this.admissionYear = admissionYear;
         this.point = 0L;
-        this.grade = "0레벨";
+        this.grade = 0L;
     }
 }
