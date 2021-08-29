@@ -10,15 +10,17 @@ public class StudentJoinDto {
     private String username;
     private String password;
     private String nickname;
-    private String univName;
+    private String univname;
+    private String tel;
     private Long admissionYear;
 
     @Builder
-    public StudentJoinDto(String username, String password, String nickname, String univName, Long admissionYear) {
+    public StudentJoinDto(String username, String password, String nickname, String univName, Long admissionYear, String tel) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
-        this.univName = univName;
+        this.univname = univName;
         this.admissionYear = admissionYear;
+        this.tel = tel;
     }
 }

@@ -21,16 +21,30 @@ public class Member extends BaseTimeEntity{
     private String username;
 
     @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
+    private String tel;
+
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Student student;
+
     @Builder
-    public Member(String username, String password, Role role){
+    public Member(String username, String password, Role role, String nickname, String tel){
         this.username = username;
+        this.nickname = nickname;
+        this.tel = tel;
         this.password = password;
         this.role = role;
     }
 
+    public void connectStudent(Student student) {
+        this.student = student;
+    }
 }

@@ -32,8 +32,6 @@ class AuthControllerUnitTest {
     private ResponseService responseService;
     @Mock
     private MemberService memberService;
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
 
     private MockMvc mockMvc;
 

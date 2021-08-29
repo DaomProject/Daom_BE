@@ -10,9 +10,10 @@ public class MemberJoinDto {
     private String username;
     private String password;
     private String nickname;
+    private String tel;
 
     @Builder
-    public MemberJoinDto(String username, String password, String nickname) {
+    public MemberJoinDto(String username, String password, String nickname, String tel) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;

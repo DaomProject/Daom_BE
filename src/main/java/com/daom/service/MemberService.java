@@ -6,18 +6,16 @@ import com.daom.domain.Student;
 import com.daom.domain.Univ;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.StudentJoinDto;
+import com.daom.exception.NicknameDuplicationException;
 import com.daom.exception.NoSuchUserException;
 import com.daom.exception.UnivNameNotFoundException;
 import com.daom.exception.UsernameDuplicationException;
 import com.daom.repository.MemberRepository;
-import com.daom.repository.StudentRepository;
 import com.daom.repository.UnivRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +23,6 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UnivRepository univRepository;
 
@@ -33,29 +30,32 @@ public class MemberService {
     public Long saveStudent(StudentJoinDto studentJoinDto) {
         // 비밀번호 인코딩
         String encodedPassword = passwordEncoder.encode(studentJoinDto.getPassword());
-        studentJoinDto.setPassword(encodedPassword);
 
-        Member existMember = memberRepository.findByUsername(studentJoinDto.getUsername()).orElse(null);
-
-        if (existMember != null) {
-            //기존에 회원 이름과 동일한 회원이 존재한다면
-            throw new UsernameDuplicationException();
-        }
+        checkDupUsername(studentJoinDto.getUsername());
+        checkDupNickname(studentJoinDto.getNickname());
 
         // 멤버 생성
-        Member newMember = new Member(studentJoinDto.getUsername(), studentJoinDto.getPassword(), Role.STUDENT);
+
+        Member newMember = Member.builder()
+                .username(studentJoinDto.getUsername())
+                .password(encodedPassword)
+                .nickname(studentJoinDto.getNickname())
+                .tel(studentJoinDto.getTel())
+                .role(Role.STUDENT)
+                .build();
+
         // 학교 조회
-        Univ findUniv = univRepository.findByName(studentJoinDto.getUnivName()).orElseThrow(UnivNameNotFoundException::new);
+        Univ findUniv = univRepository.findByName(studentJoinDto.getUnivname()).orElseThrow(UnivNameNotFoundException::new);
 
         Student newStudent = Student.builder()
                 .member(newMember)
                 .admissionYear(studentJoinDto.getAdmissionYear())
                 .univ(findUniv)
-                .nickname(studentJoinDto.getNickname())
                 .build();
 
+        newMember.connectStudent(newStudent);
+
         memberRepository.save(newMember);
-        studentRepository.save(newStudent);
         return newMember.getId();
     }
 
@@ -63,16 +63,17 @@ public class MemberService {
     @Transactional
     public Long saveShop(MemberJoinDto memberJoinDto) {
         String encodedPassword = passwordEncoder.encode(memberJoinDto.getPassword());
-        memberJoinDto.setPassword(encodedPassword);
 
-        Member existMember = memberRepository.findByUsername(memberJoinDto.getUsername()).orElse(null);
+        checkDupUsername(memberJoinDto.getUsername());
+        checkDupNickname(memberJoinDto.getNickname());
 
-        if (existMember != null) {
-            //기존에 회원 이름과 동일한 회원이 존재한다면
-            throw new UsernameDuplicationException();
-        }
-
-        Member newMember = new Member(memberJoinDto.getUsername(), memberJoinDto.getPassword(), Role.SHOP);
+        Member newMember = Member.builder()
+                .username(memberJoinDto.getUsername())
+                .password(encodedPassword)
+                .nickname(memberJoinDto.getNickname())
+                .tel(memberJoinDto.getTel())
+                .role(Role.SHOP)
+                .build();
 
         memberRepository.save(newMember);
         return newMember.getId();
@@ -93,6 +94,25 @@ public class MemberService {
 
     public boolean passwordMatch(String savedPassword, String enteredPassword) {
         return passwordEncoder.matches(savedPassword, enteredPassword);
+    }
+
+    // 중복 확인 ( 닉네임, 아이디 )
+    public void checkDupNickname(String nickname){
+        Member existMember = memberRepository.findByNickname(nickname).orElse(null);
+
+        if (existMember != null) {
+            //기존에 회원 이름과 동일한 회원이 존재한다면
+            throw new NicknameDuplicationException();
+        }
+    }
+
+    public void checkDupUsername(String username){
+        Member existMember = memberRepository.findByUsername(username).orElse(null);
+
+        if (existMember != null) {
+            //기존에 회원 이름과 동일한 회원이 존재한다면
+            throw new UsernameDuplicationException();
+        }
     }
 //    @Transactional
 //    public Member update(Long id, Member changeMember){

@@ -2,9 +2,7 @@ package com.daom.controller;
 
 import com.daom.config.jwt.JwtTokenProvider;
 import com.daom.domain.Member;
-import com.daom.dto.LoginDto;
-import com.daom.dto.MemberJoinDto;
-import com.daom.dto.StudentJoinDto;
+import com.daom.dto.*;
 import com.daom.dto.response.RestResponse;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
@@ -32,6 +30,18 @@ public class AuthController {
     @PostMapping("/join/shop")
     public RestResponse joinShop(@RequestBody MemberJoinDto memberJoinDto) {
         memberService.saveShop(memberJoinDto);
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/join/check/username")
+    public RestResponse checkDupUsername(@RequestBody UsernameDupCheckDto dupCheckDto){
+        memberService.checkDupUsername(dupCheckDto.getUsername());
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/join/check/nickname")
+    public RestResponse checkDupNickname(@RequestBody NicknameDupCheckDto dupCheckDto){
+        memberService.checkDupNickname(dupCheckDto.getNickname());
         return responseService.getSuccessResponse();
     }
 

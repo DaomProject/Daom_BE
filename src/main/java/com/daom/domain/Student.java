@@ -16,12 +16,9 @@ public class Student extends BaseTimeEntity{
     @Column(name = "student_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id") // FK 생성
     private Member member;
-
-    @Column(nullable = false)
-    private String nickname;
 
     // 재학중인 대학교
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,9 +40,8 @@ public class Student extends BaseTimeEntity{
     // 프로필 이미지 관련 TODO
 
     @Builder
-    public Student(Member member, String nickname, Univ univ, Long admissionYear) {
+    public Student(Member member, Univ univ, Long admissionYear) {
         this.member = member;
-        this.nickname = nickname;
         this.univ = univ;
         this.admissionYear = admissionYear;
         this.point = 0L;

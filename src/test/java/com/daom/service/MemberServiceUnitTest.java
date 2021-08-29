@@ -2,7 +2,6 @@ package com.daom.service;
 
 import com.daom.domain.Member;
 import com.daom.domain.Role;
-import com.daom.domain.Student;
 import com.daom.domain.Univ;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.StudentJoinDto;
@@ -11,8 +10,6 @@ import com.daom.exception.UsernameDuplicationException;
 import com.daom.repository.MemberRepository;
 import com.daom.repository.StudentRepository;
 import com.daom.repository.UnivRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +18,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Optional;
 
@@ -43,9 +37,6 @@ class MemberServiceUnitTest{
     private MemberRepository memberRepository;
 
     @Mock
-    private StudentRepository studentRepository;
-
-    @Mock
     private UnivRepository univRepository;
 
     @Spy
@@ -60,12 +51,19 @@ class MemberServiceUnitTest{
         final PasswordEncoder encoder = new BCryptPasswordEncoder();
         final String encodedPw = encoder.encode(studentJoinDto.getPassword());
 
-        Member newMember = new Member(studentJoinDto.getUsername(), encodedPw, Role.STUDENT);
+        Member newMember = Member.builder()
+                .username(studentJoinDto.getUsername())
+                .password(encodedPw)
+                .role(Role.STUDENT)
+                .tel(studentJoinDto.getTel())
+                .nickname(studentJoinDto.getNickname())
+                .build();
+
         Univ univ = new Univ("testUniv");
 
         //when
         Mockito.doReturn(Optional.empty()).when(memberRepository).findByUsername(studentJoinDto.getUsername());
-        Mockito.doReturn(Optional.of(univ)).when(univRepository).findByName(studentJoinDto.getUnivName());
+        Mockito.doReturn(Optional.of(univ)).when(univRepository).findByName(studentJoinDto.getUnivname());
 
         Long savedMemberId = memberService.saveStudent(studentJoinDto);
         Mockito.doReturn(Optional.of(newMember)).when(memberRepository).findById(savedMemberId);
@@ -77,7 +75,6 @@ class MemberServiceUnitTest{
 
         //verify
         Mockito.verify(memberRepository,Mockito.times(1)).save(any(Member.class));
-        Mockito.verify(studentRepository,Mockito.times(1)).save(any(Student.class));
         Mockito.verify(passwordEncoder,Mockito.times(1)).encode(any(String.class));
     }
 
@@ -90,7 +87,13 @@ class MemberServiceUnitTest{
         final PasswordEncoder encoder = new BCryptPasswordEncoder();
         final String encodedPw = encoder.encode(studentJoinDto.getPassword());
 
-        Member dupMember = new Member(studentJoinDto.getUsername(), encodedPw, Role.STUDENT);
+        Member dupMember = Member.builder()
+                .username(studentJoinDto.getUsername())
+                .password(encodedPw)
+                .role(Role.STUDENT)
+                .tel(studentJoinDto.getTel())
+                .nickname(studentJoinDto.getNickname())
+                .build();
 
         //when
         Mockito.doReturn(Optional.of(dupMember)).when(memberRepository).findByUsername(studentJoinDto.getUsername());
@@ -113,7 +116,7 @@ class MemberServiceUnitTest{
 
         //when
         Mockito.doReturn(Optional.empty()).when(memberRepository).findByUsername(studentJoinDto.getUsername());
-        Mockito.doReturn(Optional.empty()).when(univRepository).findByName(studentJoinDto.getUnivName());
+        Mockito.doReturn(Optional.empty()).when(univRepository).findByName(studentJoinDto.getUnivname());
 
         //then
         assertThrows(UnivNameNotFoundException.class, ()-> memberService.saveStudent(studentJoinDto));
@@ -132,7 +135,13 @@ class MemberServiceUnitTest{
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedPw = encoder.encode(memberJoinDto.getPassword());
 
-        Member newMember = new Member(memberJoinDto.getUsername(), encodedPw, Role.SHOP);
+        Member newMember = Member.builder()
+                .username(memberJoinDto.getUsername())
+                .password(encodedPw)
+                .role(Role.SHOP)
+                .tel(memberJoinDto.getTel())
+                .nickname(memberJoinDto.getNickname())
+                .build();
 
         //when
         Mockito.doReturn(Optional.empty()).when(memberRepository).findByUsername(memberJoinDto.getUsername());
@@ -160,7 +169,13 @@ class MemberServiceUnitTest{
         final PasswordEncoder encoder = new BCryptPasswordEncoder();
         final String encodedPw = encoder.encode(memberJoinDto.getPassword());
 
-        Member newMember = new Member(memberJoinDto.getUsername(), encodedPw, Role.STUDENT);
+        Member newMember = Member.builder()
+                .username(memberJoinDto.getUsername())
+                .password(encodedPw)
+                .role(Role.SHOP)
+                .tel(memberJoinDto.getTel())
+                .nickname(memberJoinDto.getNickname())
+                .build();
 
         //when
         Mockito.doReturn(Optional.of(newMember)).when(memberRepository).findByUsername(memberJoinDto.getUsername());
@@ -179,7 +194,9 @@ class MemberServiceUnitTest{
         return MemberJoinDto.builder()
                 .username("test2")
                 .nickname("test")
-                .password("12345").build();
+                .password("12345")
+                .tel("010-0000-0000")
+                .build();
     }
 
     private StudentJoinDto makeStudentJoinDto() {
@@ -187,6 +204,7 @@ class MemberServiceUnitTest{
                 .username("test")
                 .password("12345")
                 .nickname("testNickname")
+                .tel("010-0000-0000")
                 .admissionYear(2016L)
                 .univName("testUniv")
                 .build();
