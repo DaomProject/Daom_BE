@@ -12,8 +12,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 // ORM
-public class Member {
-    @JsonIgnore
+public class Member extends BaseTimeEntity{
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;

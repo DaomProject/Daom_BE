@@ -1,5 +1,6 @@
 package com.daom.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Shop {
+public class Shop extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +22,10 @@ public class Shop {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(nullable = false)
     private String name;
@@ -59,4 +64,27 @@ public class Shop {
     private Long unlike;
 
     //썸네일 관련 TODO
+
+
+    @Builder
+    public Shop(Member member, Category category, String name, String tel,
+                String jehueDesc, Boolean isPremium, String description,
+                String locDesc, Double locX, Double locY,
+                LocalTime startTime, LocalTime endTime,
+                Long like, Long unlike) {
+        this.member = member;
+        this.category = category;
+        this.name = name;
+        this.tel = tel;
+        this.jehueDesc = jehueDesc;
+        this.isPremium = isPremium;
+        this.description = description;
+        this.locDesc = locDesc;
+        this.locX = locX;
+        this.locY = locY;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.like = like;
+        this.unlike = unlike;
+    }
 }
