@@ -11,9 +11,9 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-public class UserDetailsImpl implements org.springframework.security.core.userdetails.UserDetails {
-    private Member member;
-    private List<GrantedAuthority> authorities = new ArrayList<>();
+public class UserDetailsImpl implements UserDetails {
+    private final Member member;
+    private final List<GrantedAuthority> authorities = new ArrayList<>();
 
     public UserDetailsImpl(Member member) {
         this.member = member;

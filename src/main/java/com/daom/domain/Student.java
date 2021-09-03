@@ -35,7 +35,7 @@ public class Student extends BaseTimeEntity{
 
     // 레벨
     @Column(nullable = false)
-    private Long grade;
+    private int level;
 
     // 프로필 이미지 관련 TODO
 
@@ -45,6 +45,6 @@ public class Student extends BaseTimeEntity{
         this.univ = univ;
         this.admissionYear = admissionYear;
         this.point = 0L;
-        this.grade = 0L;
+        this.level = 0;
     }
 }

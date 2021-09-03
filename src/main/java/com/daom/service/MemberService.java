@@ -5,6 +5,7 @@ import com.daom.domain.Role;
 import com.daom.domain.Student;
 import com.daom.domain.Univ;
 import com.daom.dto.MemberJoinDto;
+import com.daom.dto.MyInfoStudentDto;
 import com.daom.dto.StudentJoinDto;
 import com.daom.exception.NicknameDuplicationException;
 import com.daom.exception.NoSuchUserException;
@@ -113,6 +114,10 @@ public class MemberService {
             //기존에 회원 이름과 동일한 회원이 존재한다면
             throw new UsernameDuplicationException();
         }
+    }
+
+    public MyInfoStudentDto myInfo(Member member) {
+        return new MyInfoStudentDto(member);
     }
 //    @Transactional
 //    public Member update(Long id, Member changeMember){

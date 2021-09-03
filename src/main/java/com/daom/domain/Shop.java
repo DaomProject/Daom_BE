@@ -8,6 +8,8 @@ import javax.persistence.*;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -51,6 +53,10 @@ public class Shop extends BaseTimeEntity{
     @Column(nullable = false, name = "location_y")
     private Double locY;
 
+    // 영업 요일 ( 월화수, 월화수목금, 수목금 이런식으로 String으로 저장 , 무휴면 null)
+    @Column(nullable = true, name ="work_week")
+    private String workWeek;
+
     @Column(nullable = false, name = "start_time")
     private LocalTime startTime;
 
@@ -63,15 +69,17 @@ public class Shop extends BaseTimeEntity{
     @Column(nullable = false, name = "unlike_num")
     private Long unlike;
 
+    @OneToMany(mappedBy = "shop")
+    private List<Menu> menus = new ArrayList<>();
+
     //썸네일 관련 TODO
 
 
     @Builder
     public Shop(Member member, Category category, String name, String tel,
-                String jehueDesc, Boolean isPremium, String description,
+                String jehueDesc, Boolean isPremium, String description,String workWeek,
                 String locDesc, Double locX, Double locY,
-                LocalTime startTime, LocalTime endTime,
-                Long like, Long unlike) {
+                LocalTime startTime, LocalTime endTime) {
         this.member = member;
         this.category = category;
         this.name = name;
@@ -80,11 +88,17 @@ public class Shop extends BaseTimeEntity{
         this.isPremium = isPremium;
         this.description = description;
         this.locDesc = locDesc;
-        this.locX = locX;
-        this.locY = locY;
+        this.workWeek = workWeek;
+        this.locX = locX; // 좌표는 검색API 이용
+        this.locY = locY; // 검색 API 이용
         this.startTime = startTime;
         this.endTime = endTime;
-        this.like = like;
-        this.unlike = unlike;
+        this.like = 0L;
+        this.unlike = 0L;
+    }
+
+    public void addMenu(Menu menu){
+        menus.add(menu);
+        menu.connectShop(this);
     }
 }
