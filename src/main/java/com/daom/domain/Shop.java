@@ -44,8 +44,13 @@ public class Shop extends BaseTimeEntity{
     @Column(nullable = false)
     private String description;
 
+    // 가게 주소 ( API로 찾아볼 주소 )
     @Column(nullable = false, name = "loc_desc")
     private String locDesc;
+
+    // 상세 주소 ( 추가적인 가게주소설명 O층, OOO동 등 )
+    @Column(nullable = true, name ="loc_detail_desc")
+    private String locDetailDesc;
 
     @Column(nullable = false, name = "location_x")
     private Double locX;
@@ -69,7 +74,7 @@ public class Shop extends BaseTimeEntity{
     @Column(nullable = false, name = "unlike_num")
     private Long unlike;
 
-    @OneToMany(mappedBy = "shop")
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
 
     //썸네일 관련 TODO
@@ -77,7 +82,7 @@ public class Shop extends BaseTimeEntity{
 
     @Builder
     public Shop(Member member, Category category, String name, String tel,
-                String jehueDesc, Boolean isPremium, String description,String workWeek,
+                String jehueDesc, String description,String workWeek,
                 String locDesc, Double locX, Double locY,
                 LocalTime startTime, LocalTime endTime) {
         this.member = member;
@@ -85,7 +90,7 @@ public class Shop extends BaseTimeEntity{
         this.name = name;
         this.tel = tel;
         this.jehueDesc = jehueDesc;
-        this.isPremium = isPremium;
+        this.isPremium = false;
         this.description = description;
         this.locDesc = locDesc;
         this.workWeek = workWeek;

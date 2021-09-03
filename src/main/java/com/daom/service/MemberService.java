@@ -36,14 +36,13 @@ public class MemberService {
         checkDupNickname(studentJoinDto.getNickname());
 
         // 멤버 생성
-
         Member newMember = Member.builder()
-                .username(studentJoinDto.getUsername())
-                .password(encodedPassword)
-                .nickname(studentJoinDto.getNickname())
-                .tel(studentJoinDto.getTel())
-                .role(Role.STUDENT)
-                .build();
+            .username(studentJoinDto.getUsername())
+            .password(encodedPassword)
+            .nickname(studentJoinDto.getNickname())
+            .tel(studentJoinDto.getTel())
+            .role(Role.STUDENT)
+            .build();
 
         // 학교 조회
         Univ findUniv = univRepository.findByName(studentJoinDto.getUnivname()).orElseThrow(UnivNameNotFoundException::new);
@@ -119,15 +118,4 @@ public class MemberService {
     public MyInfoStudentDto myInfo(Member member) {
         return new MyInfoStudentDto(member);
     }
-//    @Transactional
-//    public Member update(Long id, Member changeMember){
-//        Member originMember = memberRepository.findById(id).orElse(null);
-//        if ( originMember != null){
-//            originMember.setPassword(changeMember.getPassword());
-//            originMember.setUsername(changeMember.getUsername());
-//            originMember.setRole(changeMember.getRole());
-//        }
-//
-//        return originMember;
-//    }
 }

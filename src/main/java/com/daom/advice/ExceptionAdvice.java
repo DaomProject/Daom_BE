@@ -1,10 +1,7 @@
 package com.daom.advice;
 
 import com.daom.dto.response.RestResponse;
-import com.daom.exception.NicknameDuplicationException;
-import com.daom.exception.NoSuchUserException;
-import com.daom.exception.UnivNameNotFoundException;
-import com.daom.exception.UsernameDuplicationException;
+import com.daom.exception.*;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,5 +37,11 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RestResponse univNameNotFoundException(){
         return responseService.getFailResponse(-1003, "해당 이름으로 등록된 대학교 이름이 없습니다.");
+    }
+
+    @ExceptionHandler(NoSuchCategoryException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse noSuchCategoryException(){
+        return responseService.getFailResponse(-1004, "해당 카테고리는 존재하지 않습니다.");
     }
 }
