@@ -11,7 +11,8 @@ import javax.persistence.*;
 @Getter
 @Entity
 public class Menu {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menu_id")
     private Long id;
 
@@ -19,9 +20,9 @@ public class Menu {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "file_id")
-    private File thumbnail;
+    private UploadFile thumbnail;
 
     @Column(nullable = false)
     private String name;
@@ -32,13 +33,13 @@ public class Menu {
     @Column(nullable = false)
     private Boolean isRecommend;
 
-    public void connectShop(Shop shop){
+    public void connectShop(Shop shop) {
         this.shop = shop;
     }
     //썸네일 관련 TODO
 
     @Builder
-    public Menu(MenuDto menuDto){
+    public Menu(MenuDto menuDto) {
         this.name = menuDto.getName();
         this.price = menuDto.getPrice();
         this.isRecommend = menuDto.getIsRecommend();
@@ -46,14 +47,14 @@ public class Menu {
     }
 
     @Builder
-    public Menu(File thumbnail, String name, Long price, Boolean isRecommend) {
+    public Menu(UploadFile thumbnail, String name, Long price, Boolean isRecommend) {
         this.thumbnail = thumbnail;
         this.name = name;
         this.price = price;
         this.isRecommend = isRecommend;
     }
 
-    public void addThumbnail(File thumbnail){
+    public void addThumbnail(UploadFile thumbnail) {
         this.thumbnail = thumbnail;
     }
 }

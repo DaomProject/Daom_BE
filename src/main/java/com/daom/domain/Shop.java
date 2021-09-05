@@ -78,6 +78,8 @@ public class Shop extends BaseTimeEntity{
     private List<Menu> menus = new ArrayList<>();
 
     //썸네일 관련 TODO
+    @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ShopFile shopFile;
 
 
     @Builder
@@ -105,5 +107,10 @@ public class Shop extends BaseTimeEntity{
     public void addMenu(Menu menu){
         menus.add(menu);
         menu.connectShop(this);
+    }
+
+    public void addShopFile(ShopFile shopFile){
+        this.shopFile = shopFile;
+        shopFile.connectShop(this);
     }
 }

@@ -20,3 +20,6 @@ logging.level:
   org.hibernate.SQL: debug
 
 secret: daom1234
+
+file:
+  dir: C:/Users/KBS/Desktop/kbs/Project/daom_upload/

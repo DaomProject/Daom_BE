@@ -6,7 +6,8 @@ import com.daom.dto.ShopAndMenuFilesDto;
 import com.daom.dto.ShopCreateDto;
 import com.daom.exception.NoSuchCategoryException;
 import com.daom.repository.CategoryRepository;
-import com.daom.repository.MenuRepository;
+import com.daom.repository.UploadFileRepository;
+import com.daom.repository.ShopFileRepository;
 import com.daom.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,10 @@ import java.util.stream.Collectors;
 public class ShopService {
 
     private final CategoryRepository categoryRepository;
-    private final MenuRepository menuRepository;
     private final ShopRepository shopRepository;
+    private final ShopFileRepository shopFileRepository;
+    private final UploadFileRepository uploadFileRepository;
+    private final FileStorage fileStorage;
 
     // 업체 등록 ( 처음 등록 )
     public void createShop(Member member, ShopCreateDto
@@ -31,6 +34,9 @@ public class ShopService {
         // locDesc로 주소 API 사용하여 locX, locY 찾기
 //        List<double> shopXY = findShopXY(shopCreateDto);
         List<Double> shopXY = new ArrayList<>();
+        // 테스트용
+        shopXY.add(0.5);
+        shopXY.add(0.3);
         double locX = shopXY.get(0);
         double locY = shopXY.get(1);
 
@@ -55,27 +61,44 @@ public class ShopService {
                 .locY(locY)
                 .build();
 
+        if (shopAndMenuFilesDto.getThumbnail() != null) {
+
+            UploadFile thumbnailFile = fileStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
+
+            uploadFileRepository.save(thumbnailFile);
+
+            ShopFile shopThumbnail = ShopFile.builder()
+                    .shop(newShop)
+                    .file(thumbnailFile)
+                    .desc(FileDesc.THUMBNAIL).build();
+
+            newShop.addShopFile(shopThumbnail);
+        }
         // 메뉴 엔티티 생성
+
+        // - 메뉴 객체 생성
+        List<MenuDto> menus = shopCreateDto.getMenus();
+        List<Menu> menuList = menus.stream().map(Menu::new).collect(Collectors.toList());
+
         // - 메뉴 파일 객체 생성
         List<MultipartFile> menuMultipartFiles = shopAndMenuFilesDto.getMenuFiles();
-        List<Integer> haveFileMenuIndex = shopAndMenuFilesDto.getHaveFileMenuIndex();
+        List<Integer> menuHavingFileIndexes = shopAndMenuFilesDto.getMenuHavingFileIndexes();
 
-        // - 파일 저장
-        List<File> menuFileList = FileStorage.addFiles(menuMultipartFiles);
-        int index = 0;
+        // 파일이 존재할 때
+        if (menuMultipartFiles != null && !menuMultipartFiles.isEmpty()) {
 
-        // - 메뉴 객체 생성 및 메뉴에 파일 삽입
-        List<MenuDto> menus = shopCreateDto.getMenus();
-        List<Menu> menuList = menus.stream().map(menu -> new Menu(menu)).collect(Collectors.toList());
+            // - 파일 저장
+            List<UploadFile> menuFileList = fileStorage.storeFiles(menuMultipartFiles);
+            int index = 0;
 
-        for (int fileIndex : haveFileMenuIndex) {
-            menuList.get(fileIndex - 1).addThumbnail(menuFileList.get(index++));
+            for (int havingFileIndex : menuHavingFileIndexes) {
+                Menu menuHavingFile = menuList.get(havingFileIndex - 1);
+                menuHavingFile.addThumbnail(menuFileList.get(index++));
+            }
         }
 
         // 업체 - 메뉴 삽입
-        menuList.forEach((menu)->{
-            newShop.addMenu(menu);
-        });
+        menuList.forEach(newShop::addMenu);
 
         // 업체 Repository로 업체 저장
         shopRepository.save(newShop);

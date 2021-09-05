@@ -44,4 +44,16 @@ public class ExceptionAdvice {
     public RestResponse noSuchCategoryException(){
         return responseService.getFailResponse(-1004, "해당 카테고리는 존재하지 않습니다.");
     }
+
+    @ExceptionHandler(MenuIndexAndFileNotMatchException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse menuIndexAndFileNotMatchException(){
+        return responseService.getFailResponse(-1005, "메뉴파일을 삽입한 메뉴의 순서를 알려주세요.");
+    }
+
+    @ExceptionHandler(FileStoreException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse fileStoreException(){
+        return responseService.getFailResponse(-2000, "파일을 저장하는데 실패했습니다.");
+    }
 }
