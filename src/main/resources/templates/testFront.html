@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<img id = "image" src="http://localhost:8080/files?fileName=954bd52a-d52e-4e80-af1b-9274db1a61a3.jpg" alt="">
+<button id="execute">dd</button>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $('#execute').click(function(){
+        $.ajax({
+            url:"http://localhost:8080/shops?fileName=954bd52a-d52e-4e80-af1b-9274db1a61a3.jpg",
+            headers: {'Authorization':"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOiJST0xFX1NIT1AiLCJpYXQiOjE2MzA4NDMzNzYsImV4cCI6MTYzMDg0Njk3Nn0.UhLamnWPXq4NFe_-7LNtDnjcnDj5cU6tvzNmlILeKfo"},
+            success: function(data){
+                // console.log(data)
+                var s = btoa(unescape(encodeURIComponent(data)))
+                console.log(btoa(unescape(encodeURIComponent(data))))
+                $('#image').attr('src',"data:image/jpeg;base64, "+s)
+            }
+        })
+    })
+</script>
+</body>
+</html>

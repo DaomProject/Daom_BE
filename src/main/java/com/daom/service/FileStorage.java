@@ -76,4 +76,8 @@ public class FileStorage {
         return null;
     }
 
+
+    public File getFile(String filename){
+        return new File(getFullPath(filename));
+    }
 }
