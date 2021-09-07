@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @NoArgsConstructor
 @Getter
-@Entity
+@Entity(name = "file")
 public class UploadFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

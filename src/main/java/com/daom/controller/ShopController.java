@@ -47,4 +47,14 @@ public class ShopController {
         return responseService.getSuccessResponse();
 
     }
+
+    @DeleteMapping("/{id}")
+    public RestResponse delete(
+            @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id){
+
+        Long loginMemberId = userDetails.getMember().getId();
+
+        shopService.deleteShop(loginMemberId, id);
+        return responseService.getSuccessResponse();
+    }
 }

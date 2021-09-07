@@ -60,6 +60,24 @@ public class FileStorage {
                 .extension(ext).build();
     }
 
+    public boolean deleteFile(String savedFileName){
+        File file = new File(getFullPath(savedFileName));
+
+        if(file.exists()){
+            if(file.delete()){
+                log.info("파일 삭제 : "+ savedFileName);
+                return true;
+            }else{
+                log.warn("파일 삭제 실패 : " +savedFileName);
+            }
+        }
+        else{
+            log.warn("파일이 존재하지않습니다.");
+        }
+
+        return false;
+    }
+
     private String createStoreFileName(String originalFilename) {
         String ext = extractExt(originalFilename);
         String uuid = UUID.randomUUID().toString();

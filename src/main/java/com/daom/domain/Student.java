@@ -37,6 +37,9 @@ public class Student extends BaseTimeEntity{
     @Column(nullable = false)
     private int level;
 
+    @Column(nullable =false)
+    private Boolean consentReceive;
+
     // 프로필 이미지 관련 TODO
 
     @Builder
@@ -46,5 +49,6 @@ public class Student extends BaseTimeEntity{
         this.admissionYear = admissionYear;
         this.point = 0L;
         this.level = 0;
+        consentReceive = false;
     }
 }

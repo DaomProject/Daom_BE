@@ -46,14 +46,35 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(MenuIndexAndFileNotMatchException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RestResponse menuIndexAndFileNotMatchException(){
         return responseService.getFailResponse(-1005, "메뉴파일을 삽입한 메뉴의 순서를 알려주세요.");
     }
+
+    @ExceptionHandler(NoSuchShopFileException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse noSuchShopFileException(){
+        return responseService.getFailResponse(-1007, "해당 ShopFile을 찾는데 실패했습니다.");
+    }
+
+    @ExceptionHandler(NoSuchShopException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse noSuchShopException(){
+        return responseService.getFailResponse(-1006, "해당 Shop을 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(NotAuthorityThisJobException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse notAuthorityThisJobException(){
+        return responseService.getFailResponse(-1007, "해당 작업을 할 권한이 없습니다.");
+    }
+
 
     @ExceptionHandler(FileStoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse fileStoreException(){
         return responseService.getFailResponse(-2000, "파일을 저장하는데 실패했습니다.");
     }
+
+
 }

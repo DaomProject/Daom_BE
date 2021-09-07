@@ -20,7 +20,7 @@ public class ShopFile {
     @JoinColumn(name = "shop_id") // FK 생성
     private Shop shop;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "file_id") // FK 생성
     private UploadFile file;
 
