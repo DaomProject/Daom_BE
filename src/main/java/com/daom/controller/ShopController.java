@@ -57,4 +57,15 @@ public class ShopController {
         shopService.deleteShop(loginMemberId, id);
         return responseService.getSuccessResponse();
     }
+
+//    @PostMapping("{id}")
+//    public RestResponse edit(
+//            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @RequestPart("shop") ShopCreateDto shopCreateDto,
+//            @RequestPart("thumbnail") MultipartFile thumbnail,
+//            @RequestPart("menufiles") List<MultipartFile> menuFiles,
+//            @RequestParam(name = "index",required = false) List<Integer> menuHavingFileIndex
+//    ){
+//        Member member = userDetails.getMember();
+//    }
 }

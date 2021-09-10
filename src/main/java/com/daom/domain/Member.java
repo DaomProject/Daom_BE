@@ -30,7 +30,7 @@ public class Member extends BaseTimeEntity{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Student student;
 
     @Builder

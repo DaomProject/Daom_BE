@@ -6,7 +6,6 @@ import com.daom.dto.ShopAndMenuFilesDto;
 import com.daom.dto.ShopCreateDto;
 import com.daom.exception.NoSuchCategoryException;
 import com.daom.exception.NoSuchShopException;
-import com.daom.exception.NoSuchShopFileException;
 import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -113,29 +112,25 @@ public class ShopService {
     @Transactional
     public void deleteShop(Long loginMemberId, Long id) {
 
-        Shop shop = shopRepository.findByIdWithMember(id).orElseThrow(NoSuchShopException::new);
+        Shop shop = shopRepository.findByIdWithMemberAndFiles(id).orElseThrow(NoSuchShopException::new);
 
         if (!Objects.equals(loginMemberId, shop.getMember().getId())) {
             throw new NotAuthorityThisJobException();
         }
 
-        ShopFile shopFile = shopFileRepository.findByShop(shop).orElse(null);
-        List<Menu> menus = menuRepository.findAllByShop(shop);
-
-        List<String> fileSavedNames = new ArrayList<>();
+        ShopFile shopFile = shop.getShopFile();
+        List<Menu> menus = shop.getMenus();
 
         // 실제 데이터 삭제
         if (menus != null) {
             menus.forEach(menu -> {
                 if (menu.getThumbnail() != null)
-                    fileSavedNames.add(menu.getThumbnail().getSavedName());
+                    fileStorage.deleteFile(menu.getThumbnail().getSavedName());
             });
         }
         if (shopFile != null) {
-            fileSavedNames.add(shopFile.getFile().getSavedName());
+            fileStorage.deleteFile(shopFile.getFile().getSavedName());
         }
-
-        fileSavedNames.forEach(fileStorage::deleteFile);
 
         // DB 삭제
         shopRepository.delete(shop);
