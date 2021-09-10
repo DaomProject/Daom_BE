@@ -3,16 +3,18 @@ package com.daom.controller;
 import com.daom.service.FileStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 
 @RequiredArgsConstructor
@@ -33,10 +35,9 @@ public class FileController {
         log.info("getImage() ... " + fileName);
         HttpHeaders header = new HttpHeaders();
         header.add("Content-type", Files.probeContentType(file.toPath()));
-        byte[] imgBytes = FileCopyUtils.copyToByteArray(file);
+        InputStream in = new FileInputStream(file);
 
-        result = new ResponseEntity<>(imgBytes, header, HttpStatus.OK);
-        return result;
+        return new ResponseEntity<>(IOUtils.toByteArray(in), header, HttpStatus.OK);
 
     }
 }
