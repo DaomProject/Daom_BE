@@ -1,10 +1,7 @@
 package com.daom.service;
 
 import com.daom.domain.*;
-import com.daom.dto.MenuDto;
-import com.daom.dto.ShopAndMenuFilesDto;
-import com.daom.dto.ShopCreateDto;
-import com.daom.dto.ShopReadDto;
+import com.daom.dto.*;
 import com.daom.exception.*;
 import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +34,10 @@ public class ShopService {
     @Transactional
     public void createShop(Member member, ShopCreateDto
             shopCreateDto, ShopAndMenuFilesDto shopAndMenuFilesDto) {
+
+        if (member.getRole() != Role.SHOP) {
+            throw new NotAuthorityThisJobException();
+        }
 
         // locDesc로 주소 API 사용하여 locX, locY 찾기
         double[] shopXY = findShopXY(shopCreateDto.getLocDesc());
@@ -216,7 +217,7 @@ public class ShopService {
         }
 
         // 좌표를 찾지 못했을 시
-        if(result[0] == 0){
+        if (result[0] == 0) {
             throw new FindShopXYException();
         }
 
