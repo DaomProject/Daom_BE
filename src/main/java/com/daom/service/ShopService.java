@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final FileStorage fileStorage;
     private final NaverMapApi naverMapApi;
+    private final ReviewService reviewService;
 
     @Value("${file.url}")
     private String fileUrl;
@@ -132,6 +134,9 @@ public class ShopService {
         // 실제 데이터 삭제
         menuFilesDelete(menus);
         shopFileDelete(shopFile);
+
+        Set<Review> reviews = shop.getReviews();
+        reviews.forEach(reviewService::deleteReview);
 
         // DB 삭제
         shopRepository.delete(shop);

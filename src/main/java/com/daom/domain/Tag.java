@@ -17,4 +17,22 @@ public class Tag {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private Long num;
+
+    public Tag(String name) {
+        this.name = name;
+        this.num = 0L;
+    }
+
+    public void plusTagNum(Long n){
+        this.num += n;
+    }
+
+    public void minusTagNum(Long n){
+        this.num -= n;
+        if(this.num < 0){
+            this.num = 0L;
+        }
+    }
 }

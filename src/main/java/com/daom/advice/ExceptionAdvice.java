@@ -81,6 +81,12 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-1010, "좌표를 찾는데 실패했습니다. ( 정확한 주소를 입력하세요 )");
     }
 
+    @ExceptionHandler(NoSuchReviewException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse noSuchReviewException(){
+        return responseService.getFailResponse(-1011, "해당 리뷰를 찾을 수 없습니다.");
+    }
+
     @ExceptionHandler(FileStoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse fileStoreException(){

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -82,6 +84,9 @@ public class Shop extends BaseTimeEntity {
     //썸네일 관련 TODO
     @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShopFile shopFile;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Review> reviews = new HashSet<>();
 
 
     @Builder

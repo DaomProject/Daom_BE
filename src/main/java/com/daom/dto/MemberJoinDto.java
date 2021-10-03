@@ -17,5 +17,6 @@ public class MemberJoinDto {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
+        this.tel = tel;
     }
 }
