@@ -44,12 +44,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic().disable()
                 .csrf().disable()
+                .formLogin().disable()
+                .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/files/**").permitAll()
+                .antMatchers("/test/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
@@ -60,3 +63,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         UsernamePasswordAuthenticationFilter.class);
     }
 }
+
+//    @Bean
+//    AuthenticationFilter authenticationFilter() throws Exception {
+//        final AuthenticationFilter filter = new AuthenticationFilter(authenticationManagerBean(),);
+//        return filter;
+//    }}

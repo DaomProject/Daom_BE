@@ -1,9 +1,6 @@
 package com.daom.service;
 
-import com.daom.domain.Member;
-import com.daom.domain.Role;
-import com.daom.domain.Student;
-import com.daom.domain.Univ;
+import com.daom.domain.*;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.MyInfoStudentDto;
 import com.daom.dto.StudentJoinDto;
@@ -12,6 +9,7 @@ import com.daom.exception.NoSuchUserException;
 import com.daom.exception.UnivNameNotFoundException;
 import com.daom.exception.UsernameDuplicationException;
 import com.daom.repository.MemberRepository;
+import com.daom.repository.MenuRepository;
 import com.daom.repository.UnivRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -118,4 +116,5 @@ public class MemberService {
     public MyInfoStudentDto myInfo(Member member) {
         return new MyInfoStudentDto(member);
     }
+
 }

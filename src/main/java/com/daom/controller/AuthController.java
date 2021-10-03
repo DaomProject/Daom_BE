@@ -4,6 +4,7 @@ import com.daom.config.jwt.JwtTokenProvider;
 import com.daom.domain.Member;
 import com.daom.dto.*;
 import com.daom.dto.response.RestResponse;
+import com.daom.exception.UnmatchPasswordException;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class AuthController {
     public RestResponse login(@RequestBody LoginDto loginDto) {
         Member member = memberService.findByUsername(loginDto.getUsername());
         if (!memberService.passwordMatch(loginDto.getPassword(), member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new UnmatchPasswordException();
         }
         return responseService.getSingleResponse(jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
     }

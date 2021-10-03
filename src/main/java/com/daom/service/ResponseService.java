@@ -1,10 +1,9 @@
 package com.daom.service;
 
+import com.daom.dto.response.PageResponse;
 import com.daom.dto.response.RestResponse;
 import com.daom.dto.response.SingleResponse;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ResponseService {
@@ -15,9 +14,24 @@ public class ResponseService {
         return result;
     }
 
+    public <T> PageResponse<T> getPageResponse(T data, int count){
+        PageResponse<T> result = new PageResponse<>();
+        result.setData(data);
+        result.setCount(count);
+        result.setSuccessResult();
+        return result;
+    }
+
     public RestResponse getSuccessResponse(){
         RestResponse result = new RestResponse();
         result.setSuccessResult();
+        return result;
+    }
+
+    public RestResponse getSuccessResponse(String message){
+        RestResponse result = new RestResponse();
+        result.setSuccessResult();
+        result.setMsg(message);
         return result;
     }
 

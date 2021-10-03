@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member")
-public class MemberController {
+@RequestMapping("/student")
+public class StudentController {
 
     private final ResponseService responseService;
     private final MemberService memberService;
@@ -24,18 +24,18 @@ public class MemberController {
         return responseService.getSingleResponse(memberService.myInfo(member));
     }
 
-    @GetMapping("/{id}")
-    public Member findById(@PathVariable Long id) {
-        return memberService.findById(id);
-    }
-
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
-        Member findMember = memberService.findById(id);
-        memberService.delete(findMember);
-
-        return "Done";
-    }
+//    @GetMapping("/{id}")
+//    public Member findById(@PathVariable Long id) {
+//        return memberService.findById(id);
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    public String delete(@PathVariable Long id) {
+//        Member findMember = memberService.findById(id);
+//        memberService.delete(findMember);
+//
+//        return "Done";
+//    }
 
 //    @PutMapping("/{id}")
 //    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {

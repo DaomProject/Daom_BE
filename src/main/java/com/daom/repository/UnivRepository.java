@@ -1,6 +1,5 @@
 package com.daom.repository;
 
-import com.daom.domain.Member;
 import com.daom.domain.Univ;
 import org.springframework.data.jpa.repository.JpaRepository;
 

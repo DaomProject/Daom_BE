@@ -1,6 +1,7 @@
 package com.daom.domain;
 
 import com.daom.dto.MenuDto;
+import com.daom.dto.MenuReadDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,5 +57,22 @@ public class Menu {
 
     public void addThumbnail(UploadFile thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public MenuReadDto toReadDto(String fileUrl) {
+
+        String thumbUrl = "";
+        if (thumbnail != null) {
+            String thumbnailSavedName = thumbnail.getSavedName();
+            thumbUrl = fileUrl + thumbnailSavedName;
+        }
+
+        return MenuReadDto.builder()
+                .name(name)
+                .price(price)
+                .isRecommend(isRecommend)
+                .thumbnail(thumbUrl)
+                .build();
+
     }
 }

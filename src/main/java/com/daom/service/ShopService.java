@@ -4,17 +4,17 @@ import com.daom.domain.*;
 import com.daom.dto.MenuDto;
 import com.daom.dto.ShopAndMenuFilesDto;
 import com.daom.dto.ShopCreateDto;
-import com.daom.exception.NoSuchCategoryException;
-import com.daom.exception.NoSuchShopException;
-import com.daom.exception.NotAuthorityThisJobException;
+import com.daom.dto.ShopReadDto;
+import com.daom.exception.*;
 import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,10 +27,11 @@ public class ShopService {
 
     private final CategoryRepository categoryRepository;
     private final ShopRepository shopRepository;
-    private final ShopFileRepository shopFileRepository;
-    private final UploadFileRepository uploadFileRepository;
     private final FileStorage fileStorage;
-    private final MenuRepository menuRepository;
+    private final NaverMapApi naverMapApi;
+
+    @Value("${file.url}")
+    private String fileUrl;
 
     // 업체 등록 ( 처음 등록 )
     @Transactional
@@ -38,13 +39,9 @@ public class ShopService {
             shopCreateDto, ShopAndMenuFilesDto shopAndMenuFilesDto) {
 
         // locDesc로 주소 API 사용하여 locX, locY 찾기
-//        List<double> shopXY = findShopXY(shopCreateDto);
-        List<Double> shopXY = new ArrayList<>();
-        // 테스트용
-        shopXY.add(0.5);
-        shopXY.add(0.3);
-        double locX = shopXY.get(0);
-        double locY = shopXY.get(1);
+        double[] shopXY = findShopXY(shopCreateDto.getLocDesc());
+        double locX = shopXY[0];
+        double locY = shopXY[1];
 
         // 카테고리 찾기
         Category category = categoryRepository.findByName(shopCreateDto.getCategoryName())
@@ -60,6 +57,7 @@ public class ShopService {
                 .jehueDesc(shopCreateDto.getJehueDesc())
                 .description(shopCreateDto.getDescription())
                 .locDesc(shopCreateDto.getLocDesc())
+                .locDetailDesc(shopCreateDto.getLocDetailDesc())
                 .workWeek(shopCreateDto.getWorkWeek())
                 .startTime(shopCreateDto.getStartTime())
                 .endTime(shopCreateDto.getEndTime())
@@ -80,8 +78,19 @@ public class ShopService {
         }
         // 메뉴 엔티티 생성
 
+        List<MenuDto> menusDto = shopCreateDto.getMenus();
+        List<Menu> menuList = makeMenusWithFile(menusDto, shopAndMenuFilesDto);
+
+        // 업체 - 메뉴 삽입
+        menuList.forEach(newShop::addMenu);
+
+        // 업체 Repository로 업체 저장
+        shopRepository.save(newShop);
+
+    }
+
+    private List<Menu> makeMenusWithFile(List<MenuDto> menus, ShopAndMenuFilesDto shopAndMenuFilesDto) {
         // - 메뉴 객체 생성
-        List<MenuDto> menus = shopCreateDto.getMenus();
         List<Menu> menuList = menus.stream().map(Menu::new).collect(Collectors.toList());
 
         // - 메뉴 파일 객체 생성
@@ -96,17 +105,15 @@ public class ShopService {
             int index = 0;
 
             for (int havingFileIndex : menuHavingFileIndexes) {
-                Menu menuHavingFile = menuList.get(havingFileIndex - 1);
-                menuHavingFile.addThumbnail(menuFileList.get(index++));
+                try {
+                    Menu menuHavingFile = menuList.get(havingFileIndex - 1);
+                    menuHavingFile.addThumbnail(menuFileList.get(index++));
+                } catch (IndexOutOfBoundsException e) {
+                    throw new MenuIndexAndFileNotMatchException();
+                }
             }
         }
-
-        // 업체 - 메뉴 삽입
-        menuList.forEach(newShop::addMenu);
-
-        // 업체 Repository로 업체 저장
-        shopRepository.save(newShop);
-
+        return menuList;
     }
 
     @Transactional
@@ -122,19 +129,103 @@ public class ShopService {
         List<Menu> menus = shop.getMenus();
 
         // 실제 데이터 삭제
-        if (menus != null) {
-            menus.forEach(menu -> {
-                if (menu.getThumbnail() != null)
-                    fileStorage.deleteFile(menu.getThumbnail().getSavedName());
-            });
-        }
-        if (shopFile != null) {
-            fileStorage.deleteFile(shopFile.getFile().getSavedName());
-        }
+        menuFilesDelete(menus);
+        shopFileDelete(shopFile);
 
         // DB 삭제
         shopRepository.delete(shop);
 
     }
 
+    // 파일 전체 수정
+    @Transactional
+    public void updateShop(Long loginMemberId, Long shopId, ShopCreateDto shopEditDto, ShopAndMenuFilesDto shopAndMenuFilesDto) {
+
+        // 수정자와 작성자가 동일한지 확인
+        Shop shop = shopRepository.findByIdWithMemberAndFiles(shopId).orElseThrow(NoSuchShopException::new);
+
+        if (!Objects.equals(loginMemberId, shop.getMember().getId())) {
+            throw new NotAuthorityThisJobException();
+        }
+
+        // locDesc로 주소 API 사용하여 locX, locY 찾기
+        double[] shopXY = findShopXY(shopEditDto.getLocDesc());
+        double locX = shopXY[0];
+        double locY = shopXY[1];
+
+        // 카테고리 찾기
+        Category category = categoryRepository.findByName(shopEditDto.getCategoryName())
+                .orElseThrow(NoSuchCategoryException::new);
+
+        // 상점 정보 수정
+        shop.editByDto(shopEditDto, category);
+        shop.changeXY(locX, locY);
+
+        List<Menu> menus = shop.getMenus();
+        ShopFile shopFile = shop.getShopFile();
+
+        // 등록된 실제 파일들 다 제거
+        menuFilesDelete(menus);
+        shopFileDelete(shopFile);
+
+        menus.clear();
+
+        List<MenuDto> menusDto = shopEditDto.getMenus();
+        List<Menu> menuList = makeMenusWithFile(menusDto, shopAndMenuFilesDto);
+
+        // 메뉴 삽입
+        menuList.forEach(shop::addMenu);
+
+        // 썸네일 삽입
+        if (shopAndMenuFilesDto.getThumbnail() != null) {
+
+            UploadFile thumbnailFile = fileStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
+
+            ShopFile shopThumbnail = ShopFile.builder()
+                    .shop(shop)
+                    .file(thumbnailFile)
+                    .desc(FileDesc.THUMBNAIL).build();
+
+            shop.addShopFile(shopThumbnail);
+        }
+
+    }
+
+    private void shopFileDelete(ShopFile shopFile) {
+        if (shopFile != null) {
+            fileStorage.deleteFile(shopFile.getFile().getSavedName());
+        }
+    }
+
+    private void menuFilesDelete(List<Menu> menus) {
+        if (!menus.isEmpty()) {
+            List<UploadFile> uploadFiles = menus.stream()
+                    .map(Menu::getThumbnail)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            uploadFiles.forEach(uploadFile -> fileStorage.deleteFile(uploadFile.getSavedName()));
+        }
+    }
+
+    private double[] findShopXY(String locDesc) {
+        double[] result;
+        try {
+            result = naverMapApi.findShopXYApi(locDesc);
+        } catch (IOException e) {
+            throw new NaveMapApiException(e);
+        }
+
+        // 좌표를 찾지 못했을 시
+        if(result[0] == 0){
+            throw new FindShopXYException();
+        }
+
+        return result;
+    }
+
+    public List<ShopReadDto> readMyShop(Member member) {
+        List<Shop> shops = shopRepository.findByMemberWithFiles(member).orElseThrow(NoSuchShopException::new);
+
+        return shops.stream().map(shop -> shop.toShopReadDto(fileUrl)).collect(Collectors.toList());
+    }
 }
