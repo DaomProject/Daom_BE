@@ -14,10 +14,22 @@ public class ResponseService {
         return result;
     }
 
-    public <T> PageResponse<T> getPageResponse(T data, int count){
+    public <T> PageResponse<T> getPageResponse(T data, int totalCount, int nowCount, int page){
         PageResponse<T> result = new PageResponse<>();
         result.setData(data);
-        result.setCount(count);
+        result.setTotalCount(totalCount);
+        result.setNowCount(nowCount);
+        result.setPage(page);
+        result.setSuccessResult();
+        return result;
+    }
+
+    public <T> PageResponse<T> getPageResponse(T data, int total){
+        PageResponse<T> result = new PageResponse<>();
+        result.setData(data);
+        result.setTotalCount(total);
+        result.setNowCount(total);
+        result.setPage(0);
         result.setSuccessResult();
         return result;
     }

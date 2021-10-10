@@ -18,21 +18,21 @@ public class Tag {
     private String name;
 
     @Column(nullable = false)
-    private Long num;
+    private int num;
 
     public Tag(String name) {
         this.name = name;
-        this.num = 0L;
+        this.num = 0;
     }
 
-    public void plusTagNum(Long n){
+    public void plusTagNum(int n){
         this.num += n;
     }
 
-    public void minusTagNum(Long n){
+    public void minusTagNum(int n){
         this.num -= n;
         if(this.num < 0){
-            this.num = 0L;
+            this.num = 0;
         }
     }
 }

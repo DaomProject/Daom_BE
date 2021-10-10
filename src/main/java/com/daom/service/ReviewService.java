@@ -2,6 +2,7 @@ package com.daom.service;
 
 import com.daom.domain.*;
 import com.daom.dto.ReviewCreateDto;
+import com.daom.dto.ReviewReadDto;
 import com.daom.exception.NoSuchReviewException;
 import com.daom.exception.NoSuchShopException;
 import com.daom.exception.NotAuthorityThisJobException;
@@ -11,6 +12,8 @@ import com.daom.repository.TagRepository;
 import com.daom.repository.UploadFileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -155,35 +158,55 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(Member loginMember, Long reviewId) {
-        Review review =reviewRepository.findByIdWithFilesAndTags(reviewId).orElseThrow(NoSuchReviewException::new);
+        Review review = reviewRepository.findByIdWithFilesAndTags(reviewId).orElseThrow(NoSuchReviewException::new);
 
         if (loginMember.getRole() != Role.STUDENT || !Objects.equals(review.getStudent().getId(), loginMember.getStudent().getId())) {
             throw new NotAuthorityThisJobException();
         }
 
-        if(!review.getTags().isEmpty()){
+        if (!review.getTags().isEmpty()) {
             review.detachAllReviewTag();
         }
 
-        if(!review.getPhotos().isEmpty()){
-            deleteReviewFile(review.getPhotos());
-            review.getPhotos().clear();
-        }
-
-        reviewRepository.delete(review);
-
-    }
-
-    public void deleteReview(Review review){
-        if(!review.getTags().isEmpty()){
-            review.detachAllReviewTag();
-        }
-
-        if(!review.getPhotos().isEmpty()){
+        if (!review.getPhotos().isEmpty()) {
             deleteReviewFile(review.getPhotos());
             review.getPhotos().clear();
         }
 
         reviewRepository.delete(review);
     }
+
+    public void deleteReview(Review review) {
+        if (!review.getTags().isEmpty()) {
+            review.detachAllReviewTag();
+        }
+
+        if (!review.getPhotos().isEmpty()) {
+            deleteReviewFile(review.getPhotos());
+            review.getPhotos().clear();
+        }
+
+        reviewRepository.delete(review);
+    }
+
+    public List<ReviewReadDto> readReviewsByPage(Boolean havePhoto, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit);
+        List<Review> reviews = null;
+        if (!havePhoto) {
+            // 글 리뷰
+            reviews = reviewRepository.findByPageWithNotPhotos(pageable);
+        } else{
+            // 사진 리뷰
+            reviews = reviewRepository.findByPageWithPhotos(pageable);
+        }
+
+        List<ReviewReadDto> reviewReadDtoList = reviews.stream().map(Review::toReadDto).collect(Collectors.toList());
+
+        return reviewReadDtoList;
+    }
+
+    public long countByHavePhotos(boolean havePhoto){
+        return reviewRepository.countByHavePhotos(havePhoto);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.daom.domain;
 
 import com.daom.dto.ReviewCreateDto;
+import com.daom.dto.ReviewReadDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,10 +33,10 @@ public class Review extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false, name = "like_num")
-    private Long like;
+    private int like;
 
     @Column(nullable = false, name = "unlike_num")
-    private Long unlike;
+    private int unlike;
 
     @Column(nullable = false, name = "have_photos")
     private boolean havePhotos;
@@ -51,8 +52,8 @@ public class Review extends BaseTimeEntity {
         this.shop = shop;
         this.student = student;
         this.content = content;
-        this.like = 0L;
-        this.unlike = 0L;
+        this.like = 0;
+        this.unlike = 0;
         this.havePhotos = false;
     }
 
@@ -70,11 +71,49 @@ public class Review extends BaseTimeEntity {
 
     public void detachReviewTag(ReviewTag deletedReviewTag) {
         this.tags.remove(deletedReviewTag);
-        deletedReviewTag.getTag().minusTagNum(1L);
+        deletedReviewTag.getTag().minusTagNum(1);
     }
 
     public void detachAllReviewTag() {
-        this.tags.forEach(t -> t.getTag().minusTagNum(1L));
+        this.tags.forEach(t -> t.getTag().minusTagNum(1));
         this.tags.clear();
+    }
+
+    public ReviewReadDto toReadDto() {
+
+        List<String> tagNames = new ArrayList<>();
+        tags.forEach(t -> tagNames.add(t.getTag().getName()));
+        String thumbUrl = null;
+        StringBuilder sb = new StringBuilder();
+        List<String> photoUrls = new ArrayList<>();
+
+        if(student.getThumbnail() != null){
+            sb.append("http://localhost:8080/files?filename=");
+            sb.append(student.getThumbnail().getSavedName());
+            thumbUrl = sb.toString();
+            sb.setLength(0);
+        }
+
+        if (havePhotos) {
+            photos.forEach(p -> {
+                sb.append("http://localhost:8080/files?filename=");
+                sb.append(p.getFile().getSavedName());
+                photoUrls.add(sb.toString());
+                sb.setLength(0);
+            });
+        }
+
+        return ReviewReadDto.builder()
+                .id(id)
+                .nickname(student.getMember().getNickname())
+                .level(student.getLevel())
+                .userThumbnail(thumbUrl)
+                .content(content)
+                .like(like)
+                .unlike(unlike)
+                .tags(tagNames)
+                .photos(photoUrls)
+                .build();
+
     }
 }

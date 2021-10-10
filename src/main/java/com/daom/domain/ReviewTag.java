@@ -27,7 +27,7 @@ public class ReviewTag {
         this.tag = tag;
 
         // 리뷰태그 생성되었으므로 태그 개수 1 추가
-        tag.plusTagNum(1L);
+        tag.plusTagNum(1);
     }
 
 }
