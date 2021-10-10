@@ -2,12 +2,17 @@ package com.daom.controller;
 
 import com.daom.config.auth.UserDetailsImpl;
 import com.daom.domain.Member;
+import com.daom.domain.Student;
+import com.daom.dto.LoginDto;
 import com.daom.dto.response.RestResponse;
+import com.daom.exception.NotAuthorityThisJobException;
+import com.daom.exception.NotStudentException;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,4 +46,16 @@ public class StudentController {
 //    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {
 //        return memberService.update(id, changeMember);
 //    }
+@PostMapping(value = "/upload")//프로핊사진업로드
+public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
+    Student student = userDetails.getMember().getStudent();
+    if (student == null) {
+        throw new NotStudentException();
+    }
+    memberService.profileUpload(student.getId(), thumbnail);
+    //file 테이블에 저장한 사진정보가 db에 저장되어야한다
+
+    return "Done";
+}
+
 }

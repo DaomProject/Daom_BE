@@ -41,6 +41,14 @@ public class Student extends BaseTimeEntity{
     private Boolean consentReceive;
 
     // 프로필 이미지 관련 TODO
+    // 프로필 이미지 관련 TODO 내가 한일
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "file_id")
+    private UploadFile thumbnail;
+
+    public void addThumbnail(UploadFile thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
     @Builder
     public Student(Member member, Univ univ, Long admissionYear) {

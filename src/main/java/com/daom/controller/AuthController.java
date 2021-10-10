@@ -1,17 +1,17 @@
 package com.daom.controller;
 
+import com.daom.config.auth.UserDetailsImpl;
 import com.daom.config.jwt.JwtTokenProvider;
 import com.daom.domain.Member;
 import com.daom.dto.*;
 import com.daom.dto.response.RestResponse;
+import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.exception.UnmatchPasswordException;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +53,15 @@ public class AuthController {
             throw new UnmatchPasswordException();
         }
         return responseService.getSingleResponse(jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
+    }
+    @PostMapping("/{id}")
+    public Member update(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LoginDto loginDto) {//로그인한 멤버 정보 받아오기
+        Member member = memberService.findById(id);
+        if(member.getId()!=userDetails.getMember().getId()){
+            throw new NotAuthorityThisJobException();//로그인한 사람만 할수있는일이니까
+        }
+        return memberService.UpdatePassword(id, loginDto.getPassword());
+
     }
 
 }

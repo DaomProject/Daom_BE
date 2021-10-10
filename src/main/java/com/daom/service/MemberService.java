@@ -4,17 +4,13 @@ import com.daom.domain.*;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.MyInfoStudentDto;
 import com.daom.dto.StudentJoinDto;
-import com.daom.exception.NicknameDuplicationException;
-import com.daom.exception.NoSuchUserException;
-import com.daom.exception.UnivNameNotFoundException;
-import com.daom.exception.UsernameDuplicationException;
-import com.daom.repository.MemberRepository;
-import com.daom.repository.MenuRepository;
-import com.daom.repository.UnivRepository;
+import com.daom.exception.*;
+import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +20,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final UnivRepository univRepository;
+
+    private final FileStorage fileStorage;
+    private final UploadFileRepository uploadFileRepository;
+    private final StudentRepository studentRepository;
 
     @Transactional
     public Long saveStudent(StudentJoinDto studentJoinDto) {
@@ -115,6 +115,31 @@ public class MemberService {
 
     public MyInfoStudentDto myInfo(Member member) {
         return new MyInfoStudentDto(member);
+    }
+    @Transactional
+    public Member UpdatePassword(Long memberId, String newPw) {
+        Member existMember = memberRepository.findById(memberId).orElse(null);
+        String encodedPassword = passwordEncoder.encode(newPw);
+        if (existMember == null) {
+            //기존에 회원 이름과 동일한 회원이 존재하지 않는다면
+            throw new NoSuchUserException();
+        }
+        existMember.changePw(encodedPassword);
+
+        return existMember;
+
+    }
+    @Transactional
+    public void profileUpload(Long studentId, MultipartFile thumbnail) {
+        Student student = studentRepository.findById(studentId).orElseThrow(NoSuchStudentException::new);
+        UploadFile uploadedThumbnail = fileStorage.storeFile(thumbnail);
+        // DB에저장을 해야함
+        // 1. Repository에서 저장
+//        uploadFileRepository.save(uploadedThumbnail);
+        // 2. cascade 사용
+
+        student.addThumbnail(uploadedThumbnail);
+
     }
 
 }
