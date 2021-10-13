@@ -49,7 +49,16 @@ public class Student extends BaseTimeEntity{
     public void addThumbnail(UploadFile thumbnail) {
         this.thumbnail = thumbnail;
     }
+    public String getThumbnailName(){
+        if(thumbnail==null){
+            return null;
+        }
+        return thumbnail.getSavedName();
 
+    }
+    public void deleteThumbnail(){
+        thumbnail = null;
+    }
     @Builder
     public Student(Member member, Univ univ, Long admissionYear) {
         this.member = member;

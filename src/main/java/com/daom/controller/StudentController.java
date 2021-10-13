@@ -47,16 +47,26 @@ public class StudentController {
 //    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {
 //        return memberService.update(id, changeMember);
 //    }
-@PostMapping(value = "/upload")//프로핊사진업로드
-public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
-    Student student = userDetails.getMember().getStudent();
-    if (student == null) {
-        throw new NotStudentException();
-    }
-    studentService.profileUpload(student.getId(), thumbnail);
-    //file 테이블에 저장한 사진정보가 db에 저장되어야한다
+    @PostMapping(value = "/profile/upload")//프로핊사진업로드
+    public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
+        Student student = userDetails.getMember().getStudent();
+        if (student == null) {
+            throw new NotStudentException();
+        }
+        studentService.profileUpload(student.getId(), thumbnail);
+        //file 테이블에 저장한 사진정보가 db에 저장되어야한다
 
-    return "Done";
-}
+        return "Done";
+    }
+
+    @PostMapping(value = "/profile/delete")//프로필사진삭제
+    public String profileDelete(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Student student = userDetails.getMember().getStudent();
+        if (student == null) {
+            throw new NotStudentException();
+        }
+        studentService.profileDelete(student.getId());
+        return "Done";
+    }
 
 }
