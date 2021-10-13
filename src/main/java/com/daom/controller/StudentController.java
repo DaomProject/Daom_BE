@@ -9,6 +9,7 @@ import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.exception.NotStudentException;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
+import com.daom.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/student")
 public class StudentController {
-
+    private final StudentService studentService;
     private final ResponseService responseService;
     private final MemberService memberService;
 
@@ -52,7 +53,7 @@ public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @
     if (student == null) {
         throw new NotStudentException();
     }
-    memberService.profileUpload(student.getId(), thumbnail);
+    studentService.profileUpload(student.getId(), thumbnail);
     //file 테이블에 저장한 사진정보가 db에 저장되어야한다
 
     return "Done";

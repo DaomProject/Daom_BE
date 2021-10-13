@@ -54,13 +54,14 @@ public class AuthController {
         }
         return responseService.getSingleResponse(jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
     }
-    @PostMapping("/{id}")
-    public Member update(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody LoginDto loginDto) {//로그인한 멤버 정보 받아오기
+    @PutMapping("/updatepw/{id}")
+    public RestResponse update(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UpdatePwDto updatePwDto) {//로그인한 멤버 정보 받아오기
         Member member = memberService.findById(id);
         if(member.getId()!=userDetails.getMember().getId()){
             throw new NotAuthorityThisJobException();//로그인한 사람만 할수있는일이니까
         }
-        return memberService.UpdatePassword(id, loginDto.getPassword());
+        memberService.UpdatePassword(id, updatePwDto.getPassword());
+        return responseService.getSuccessResponse();
 
     }
 

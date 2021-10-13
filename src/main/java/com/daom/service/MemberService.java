@@ -21,9 +21,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final UnivRepository univRepository;
 
-    private final FileStorage fileStorage;
-    private final UploadFileRepository uploadFileRepository;
-    private final StudentRepository studentRepository;
+
 
     @Transactional
     public Long saveStudent(StudentJoinDto studentJoinDto) {
@@ -129,17 +127,6 @@ public class MemberService {
         return existMember;
 
     }
-    @Transactional
-    public void profileUpload(Long studentId, MultipartFile thumbnail) {
-        Student student = studentRepository.findById(studentId).orElseThrow(NoSuchStudentException::new);
-        UploadFile uploadedThumbnail = fileStorage.storeFile(thumbnail);
-        // DB에저장을 해야함
-        // 1. Repository에서 저장
-//        uploadFileRepository.save(uploadedThumbnail);
-        // 2. cascade 사용
 
-        student.addThumbnail(uploadedThumbnail);
-
-    }
 
 }
