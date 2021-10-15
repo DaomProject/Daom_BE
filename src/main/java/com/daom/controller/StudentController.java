@@ -48,7 +48,7 @@ public class StudentController {
 //        return memberService.update(id, changeMember);
 //    }
     @PostMapping(value = "/profile/upload")//프로핊사진업로드
-    public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
+    public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
         Student student = userDetails.getMember().getStudent();
         if (student == null) {
             throw new NotStudentException();
@@ -56,17 +56,17 @@ public class StudentController {
         studentService.profileUpload(student.getId(), thumbnail);
         //file 테이블에 저장한 사진정보가 db에 저장되어야한다
 
-        return "Done";
+        return responseService.getSuccessResponse();
     }
 
     @PostMapping(value = "/profile/delete")//프로필사진삭제
-    public String profileDelete(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public RestResponse profileDelete(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Student student = userDetails.getMember().getStudent();
         if (student == null) {
             throw new NotStudentException();
         }
         studentService.profileDelete(student.getId());
-        return "Done";
+        return responseService.getSuccessResponse();
     }
 
 }
