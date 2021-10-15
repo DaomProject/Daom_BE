@@ -9,6 +9,7 @@ import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.exception.NotStudentException;
 import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
+import com.daom.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/student")
 public class StudentController {
-
+    private final StudentService studentService;
     private final ResponseService responseService;
     private final MemberService memberService;
 
@@ -46,16 +47,26 @@ public class StudentController {
 //    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {
 //        return memberService.update(id, changeMember);
 //    }
-@PostMapping(value = "/upload")//프로핊사진업로드
-public String fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
-    Student student = userDetails.getMember().getStudent();
-    if (student == null) {
-        throw new NotStudentException();
-    }
-    memberService.profileUpload(student.getId(), thumbnail);
-    //file 테이블에 저장한 사진정보가 db에 저장되어야한다
+    @PostMapping(value = "/profile/upload")//프로핊사진업로드
+    public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
+        Student student = userDetails.getMember().getStudent();
+        if (student == null) {
+            throw new NotStudentException();
+        }
+        studentService.profileUpload(student.getId(), thumbnail);
+        //file 테이블에 저장한 사진정보가 db에 저장되어야한다
 
-    return "Done";
-}
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping(value = "/profile/delete")//프로필사진삭제
+    public RestResponse profileDelete(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Student student = userDetails.getMember().getStudent();
+        if (student == null) {
+            throw new NotStudentException();
+        }
+        studentService.profileDelete(student.getId());
+        return responseService.getSuccessResponse();
+    }
 
 }
