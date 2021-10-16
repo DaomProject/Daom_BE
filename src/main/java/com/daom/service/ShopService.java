@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -25,6 +23,7 @@ public class ShopService {
 
     private final CategoryRepository categoryRepository;
     private final ShopRepository shopRepository;
+    private final TagRepository tagRepository;
     private final FileStorage fileStorage;
     private final NaverMapApi naverMapApi;
     private final ReviewService reviewService;
@@ -34,8 +33,8 @@ public class ShopService {
 
     // 업체 등록 ( 처음 등록 )
     @Transactional
-    public void createShop(Member member, ShopCreateDto
-            shopCreateDto, ShopAndMenuFilesDto shopAndMenuFilesDto) {
+    public void createShop(Member member, ShopCreateDto shopCreateDto,
+                           ShopAndMenuFilesDto shopAndMenuFilesDto) {
 
         if (member.getRole() != Role.SHOP) {
             throw new NotAuthorityThisJobException();
@@ -67,6 +66,15 @@ public class ShopService {
                 .locX(locX)
                 .locY(locY)
                 .build();
+
+        // 태그 붙이기 ( 중복 제거 )
+        List<String> tagNames = shopCreateDto.getTags();
+        if (tagNames != null && !tagNames.isEmpty()) {
+            Set<String> newTagNamesTemp = new HashSet<>(tagNames);
+            tagNames = new ArrayList<>(newTagNamesTemp);
+
+            addNewShopTag(newShop, tagNames);
+        }
 
         if (shopAndMenuFilesDto.getThumbnail() != null) {
 
@@ -138,6 +146,9 @@ public class ShopService {
         List<Review> reviews = shop.getReviews();
         reviews.forEach(reviewService::deleteReview);
 
+        //태그 삭제
+        shop.detachAllShopTag();
+
         // DB 삭제
         shopRepository.delete(shop);
 
@@ -195,6 +206,39 @@ public class ShopService {
             shop.addShopFile(shopThumbnail);
         }
 
+        // 태그 변경
+        List<String> newTagNames = shopEditDto.getTags();
+        List<ShopTag> originReviewTags = shop.getTags();
+        List<ShopTag> deleteReviewTags = new ArrayList<>();
+
+
+        // -- 새 태그와 비교해서 지워질 태그 삭제
+        if (newTagNames != null && !newTagNames.isEmpty()) { // 새 태그가 존재
+            Set<String> newTagNamesTemp = new HashSet<>(newTagNames);
+            newTagNames = new ArrayList<>(newTagNamesTemp);
+            if (!originReviewTags.isEmpty()) { // 기존 태그가 비어있지 않음
+                for (ShopTag originReviewTag : originReviewTags) {
+                    String tagName = originReviewTag.getTag().getName();
+                    if (!newTagNames.contains(tagName)) {
+                        deleteReviewTags.add(originReviewTag);
+                    } else {
+                        newTagNames.remove(tagName);
+                    }
+                }
+            }
+
+            for (ShopTag deletedShopTag : deleteReviewTags) {
+                shop.detachShopTag(deletedShopTag);
+            }
+
+            // 새 태그 생성
+            addNewShopTag(shop, newTagNames);
+        } else { // 새 태그 비어있음
+            if (!originReviewTags.isEmpty()) { // 기존 태그 존재
+                shop.detachAllShopTag();
+            }
+        }
+
     }
 
     private void shopFileDelete(ShopFile shopFile) {
@@ -231,8 +275,21 @@ public class ShopService {
 
     public List<ShopReadDto> readMyShop(Member member) {
         List<Shop> shops = shopRepository.findByMemberWithFiles(member).orElseThrow(NoSuchShopException::new);
-        shops.forEach(shop -> shop.getReviews()); // 강제 초기화를 위함
+        shops.forEach(Shop::getReviews); // 강제 초기화를 위함
 
         return shops.stream().map(shop -> shop.toShopReadDto(fileUrl)).collect(Collectors.toList());
+    }
+
+    private void addNewShopTag(Shop shop, List<String> newTagNames) {
+        for (String newTagName : newTagNames) {
+            Tag tag = tagRepository.findByName(newTagName).orElse(null);
+            if (tag != null) {
+                shop.getTags().add(new ShopTag(shop, tag));
+            } else {
+                Tag newTag = new Tag(newTagName);
+                tagRepository.save(newTag); // 새 태그 저장
+                shop.getTags().add(new ShopTag(shop, newTag));
+            }
+        }
     }
 }

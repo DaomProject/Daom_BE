@@ -40,6 +40,8 @@ public class ShopCreateDto {
 
     private List<MenuDto> menus;
 
+    private List<String> tags;
+
     @Builder
     public ShopCreateDto(String categoryName, String name, String tel,
                          String jehueDesc, String description, String locDesc, String locDetailDesc,

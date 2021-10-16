@@ -21,4 +21,12 @@ public class ShopTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id") // FK 생성
     private Tag tag;
+
+    public ShopTag(Shop shop, Tag tag) {
+        this.shop = shop;
+        this.tag = tag;
+
+        // 리뷰태그 생성되었으므로 태그 개수 1 추가
+        tag.plusTagNum(1);
+    }
 }

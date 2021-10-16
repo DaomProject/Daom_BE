@@ -76,13 +76,11 @@ public class ReviewService {
 
         // 태그 변경
         List<String> newTagNames = reviewCreateDto.getTags();
-        Set<ReviewTag> originReviewTags = review.getTags();
+        List<ReviewTag> originReviewTags = review.getTags();
         List<ReviewTag> deleteReviewTags = new ArrayList<>();
 
 
         // -새 태그와 비교해서 지워질 태그 삭제
-
-
         if (newTagNames != null && !newTagNames.isEmpty()) { // 새 태그가 존재
             Set<String> newTagNamesTemp = new HashSet<>(newTagNames);
             newTagNames = new ArrayList<>(newTagNamesTemp);

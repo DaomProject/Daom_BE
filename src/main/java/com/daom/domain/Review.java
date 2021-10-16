@@ -42,7 +42,7 @@ public class Review extends BaseTimeEntity {
     private boolean havePhotos;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ReviewTag> tags = new HashSet<>();
+    private List<ReviewTag> tags = new ArrayList<>();
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewFile> photos = new ArrayList<>();

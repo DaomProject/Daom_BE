@@ -39,6 +39,8 @@ public class ShopReadDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "Asia/Seoul")
     private LocalTime endTime;
 
+    private List<String> tags;
+
     private List<MenuReadDto> menus;
 
     private List<ReviewReadDto> textReviews;
@@ -47,11 +49,10 @@ public class ShopReadDto {
 
 
     @Builder
-
     public ShopReadDto(Long id, String categoryName, String thumbnail, String name,
                        String tel, String jehueDesc, String description, String locDesc,
-                       String workWeek, LocalTime startTime, LocalTime endTime, List<MenuReadDto> menus,
-                       List<ReviewReadDto> photoReviews, List<ReviewReadDto> textReviews) {
+                       String workWeek, LocalTime startTime, LocalTime endTime, List<String> tags,
+                       List<MenuReadDto> menus, List<ReviewReadDto> textReviews, List<ReviewReadDto> photoReviews) {
         this.id = id;
         this.categoryName = categoryName;
         this.thumbnail = thumbnail;
@@ -63,8 +64,9 @@ public class ShopReadDto {
         this.workWeek = workWeek;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.tags = tags;
         this.menus = menus;
-        this.photoReviews = photoReviews;
         this.textReviews = textReviews;
+        this.photoReviews = photoReviews;
     }
 }

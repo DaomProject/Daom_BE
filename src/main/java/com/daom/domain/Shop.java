@@ -86,6 +86,9 @@ public class Shop extends BaseTimeEntity {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShopTag> tags = new ArrayList<>();
+
     private static final int REVIEW_SIZE = 3;
     @Builder
     public Shop(Member member, Category category, String name, String tel,
@@ -139,6 +142,16 @@ public class Shop extends BaseTimeEntity {
         this.locY = locY;
     }
 
+    public void detachShopTag(ShopTag deletedShopTag) {
+        this.tags.remove(deletedShopTag);
+        deletedShopTag.getTag().minusTagNum(1);
+    }
+
+    public void detachAllShopTag() {
+        this.tags.forEach(t -> t.getTag().minusTagNum(1));
+        this.tags.clear();
+    }
+
     public ShopReadDto toShopReadDto(String fileUrl) {
         // Shop thumb 주소 얻기
         String thumbUrl = null;
@@ -146,6 +159,10 @@ public class Shop extends BaseTimeEntity {
             String thumbnailSavedName = this.shopFile.getFile().getSavedName();
             thumbUrl = fileUrl + thumbnailSavedName;
         }
+
+        // 태그 얻기
+        List<String> tagNames = new ArrayList<>();
+        tags.forEach(t -> tagNames.add(t.getTag().getName()));
 
         // List<Menu> -> List<MenuReadDto> + thumb 주소얻기까지 해야함
         List<MenuReadDto> menuDtoList = menus.stream().map(menu -> menu.toReadDto(fileUrl)).collect(Collectors.toList());
@@ -178,6 +195,7 @@ public class Shop extends BaseTimeEntity {
                 .menus(menuDtoList)
                 .textReviews(reviewDtoList)
                 .photoReviews(photoReviewDtoList)
+                .tags(tagNames)
                 .build();
     }
 }
