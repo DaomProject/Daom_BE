@@ -3,9 +3,7 @@ package com.daom.dto;
 import com.daom.domain.Member;
 import com.daom.domain.Student;
 import com.daom.domain.Univ;
-import lombok.Builder;
 import lombok.Data;
-import org.springframework.transaction.annotation.Transactional;
 
 @Data
 public class MyInfoStudentDto {
@@ -15,10 +13,11 @@ public class MyInfoStudentDto {
     private String tel;
     private Long admissionYear;
     private Long point;
+    private String thumbnail;
     private int level;
     private int reviewNum;
     private int likeNum;
-    //TODO 썸네일
+
 
 //    @Builder
 //    public MyInfoStudentDto(String username, String nickname, String univname, String tel, Long admissionYear, Long point, int level) {
@@ -46,8 +45,12 @@ public class MyInfoStudentDto {
         this.admissionYear = student.getAdmissionYear();
         this.point = student.getPoint();
         this.level = student.getLevel();
+        if(student.getThumbnail() != null){
+            this.thumbnail = "http://localhost:8080/file?filename=" + student.getThumbnail().getSavedName();
+        }else{
+            this.thumbnail = null;
+        }
 
-        // TODO
         reviewNum = 0;
         likeNum = 0;
     }

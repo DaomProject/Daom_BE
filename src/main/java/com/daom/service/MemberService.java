@@ -111,9 +111,6 @@ public class MemberService {
         }
     }
 
-    public MyInfoStudentDto myInfo(Member member) {
-        return new MyInfoStudentDto(member);
-    }
     @Transactional
     public Member UpdatePassword(Long memberId, String newPw) {
         Member existMember = memberRepository.findById(memberId).orElse(null);

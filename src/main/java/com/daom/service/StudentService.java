@@ -1,8 +1,11 @@
 package com.daom.service;
 
+import com.daom.domain.Member;
 import com.daom.domain.Student;
 import com.daom.domain.UploadFile;
+import com.daom.dto.MyInfoStudentDto;
 import com.daom.exception.NoSuchStudentException;
+import com.daom.repository.MemberRepository;
 import com.daom.repository.StudentRepository;
 import com.daom.repository.UploadFileRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 public class StudentService {
     private final FileStorage fileStorage;
+    private final MemberRepository memberRepository;
     private final StudentRepository studentRepository;
+
     @Transactional
     public void profileUpload(Long studentId, MultipartFile thumbnail) {
         Student student = studentRepository.findById(studentId).orElseThrow(NoSuchStudentException::new);
@@ -35,5 +40,10 @@ public class StudentService {
         fileStorage.deleteFile(student.getThumbnailName());
         student.deleteThumbnail();
 
+    }
+
+    public MyInfoStudentDto myInfo(Long studentId) {
+        Member member = memberRepository.findById(studentId).orElseThrow(NoSuchStudentException::new);
+        return new MyInfoStudentDto(member);
     }
 }

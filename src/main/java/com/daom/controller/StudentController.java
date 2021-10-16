@@ -26,8 +26,8 @@ public class StudentController {
     // 학생 마이페이지 조회
     @GetMapping("/me")
     public RestResponse myInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        Member member = userDetails.getMember();
-        return responseService.getSingleResponse(memberService.myInfo(member));
+        Long studentId = userDetails.getMember().getId();
+        return responseService.getSingleResponse(studentService.myInfo(studentId));
     }
 
 //    @GetMapping("/{id}")
@@ -47,7 +47,7 @@ public class StudentController {
 //    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {
 //        return memberService.update(id, changeMember);
 //    }
-    @PostMapping(value = "/profile/upload")//프로핊사진업로드
+    @PostMapping(value = "/profile")//프로필사진업로드
     public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
         Student student = userDetails.getMember().getStudent();
         if (student == null) {
@@ -59,7 +59,7 @@ public class StudentController {
         return responseService.getSuccessResponse();
     }
 
-    @PostMapping(value = "/profile/delete")//프로필사진삭제
+    @DeleteMapping(value = "/profile")//프로필사진삭제
     public RestResponse profileDelete(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Student student = userDetails.getMember().getStudent();
         if (student == null) {

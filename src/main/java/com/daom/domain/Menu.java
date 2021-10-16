@@ -37,7 +37,6 @@ public class Menu {
     public void connectShop(Shop shop) {
         this.shop = shop;
     }
-    //썸네일 관련 TODO
 
     @Builder
     public Menu(MenuDto menuDto) {
