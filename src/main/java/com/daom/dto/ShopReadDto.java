@@ -41,10 +41,17 @@ public class ShopReadDto {
 
     private List<MenuReadDto> menus;
 
+    private List<ReviewReadDto> textReviews;
+
+    private List<ReviewReadDto> photoReviews;
+
+
     @Builder
-    public ShopReadDto(Long id, String categoryName, String thumbnail, String name, String tel,
-                       String jehueDesc, String description, String locDesc,
-                       String workWeek, LocalTime startTime, LocalTime endTime, List<MenuReadDto> menus) {
+
+    public ShopReadDto(Long id, String categoryName, String thumbnail, String name,
+                       String tel, String jehueDesc, String description, String locDesc,
+                       String workWeek, LocalTime startTime, LocalTime endTime, List<MenuReadDto> menus,
+                       List<ReviewReadDto> photoReviews, List<ReviewReadDto> textReviews) {
         this.id = id;
         this.categoryName = categoryName;
         this.thumbnail = thumbnail;
@@ -57,5 +64,7 @@ public class ShopReadDto {
         this.startTime = startTime;
         this.endTime = endTime;
         this.menus = menus;
+        this.photoReviews = photoReviews;
+        this.textReviews = textReviews;
     }
 }

@@ -1,6 +1,7 @@
 package com.daom.domain;
 
 import com.daom.dto.MenuReadDto;
+import com.daom.dto.ReviewReadDto;
 import com.daom.dto.ShopCreateDto;
 import com.daom.dto.ShopReadDto;
 import lombok.Builder;
@@ -9,10 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -86,9 +84,9 @@ public class Shop extends BaseTimeEntity {
     private ShopFile shopFile;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Review> reviews = new HashSet<>();
+    private List<Review> reviews = new ArrayList<>();
 
-
+    private static final int REVIEW_SIZE = 3;
     @Builder
     public Shop(Member member, Category category, String name, String tel,
                 String jehueDesc, String description, String workWeek,
@@ -122,7 +120,7 @@ public class Shop extends BaseTimeEntity {
         shopFile.connectShop(this);
     }
 
-    public void editByDto(ShopCreateDto shopCreateDto, Category category) {
+    public void updateByDto(ShopCreateDto shopCreateDto, Category category) {
         this.category = category;
 
         this.name = shopCreateDto.getName();
@@ -152,6 +150,19 @@ public class Shop extends BaseTimeEntity {
         // List<Menu> -> List<MenuReadDto> + thumb 주소얻기까지 해야함
         List<MenuReadDto> menuDtoList = menus.stream().map(menu -> menu.toReadDto(fileUrl)).collect(Collectors.toList());
 
+        List<ReviewReadDto> reviewDtoList = reviews.stream().map(Review::toReadDto).collect(Collectors.toList());
+        Collections.reverse(reviewDtoList); // 최신순으로 조회를 원하기 때문에 리스트를 뒤집음
+
+        List<ReviewReadDto> photoReviewDtoList = reviewDtoList.stream().filter(reviewDto -> !reviewDto.getPhotos().isEmpty()).collect(Collectors.toList());
+        reviewDtoList.removeAll(photoReviewDtoList); // reviewDtoList에서 PhotoReivew를 제외
+        if(reviewDtoList.size() > REVIEW_SIZE) {
+            reviewDtoList = reviewDtoList.subList(0, REVIEW_SIZE);
+        }
+
+        if(photoReviewDtoList.size() > REVIEW_SIZE){
+            photoReviewDtoList = photoReviewDtoList.subList(0, REVIEW_SIZE);
+        }
+
         return ShopReadDto.builder()
                 .id(id)
                 .categoryName(category.getName())
@@ -165,6 +176,8 @@ public class Shop extends BaseTimeEntity {
                 .startTime(startTime)
                 .endTime(endTime)
                 .menus(menuDtoList)
+                .textReviews(reviewDtoList)
+                .photoReviews(photoReviewDtoList)
                 .build();
     }
 }

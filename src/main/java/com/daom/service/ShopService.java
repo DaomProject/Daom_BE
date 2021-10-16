@@ -135,7 +135,7 @@ public class ShopService {
         menuFilesDelete(menus);
         shopFileDelete(shopFile);
 
-        Set<Review> reviews = shop.getReviews();
+        List<Review> reviews = shop.getReviews();
         reviews.forEach(reviewService::deleteReview);
 
         // DB 삭제
@@ -164,7 +164,7 @@ public class ShopService {
                 .orElseThrow(NoSuchCategoryException::new);
 
         // 상점 정보 수정
-        shop.editByDto(shopEditDto, category);
+        shop.updateByDto(shopEditDto, category);
         shop.changeXY(locX, locY);
 
         List<Menu> menus = shop.getMenus();
@@ -231,6 +231,7 @@ public class ShopService {
 
     public List<ShopReadDto> readMyShop(Member member) {
         List<Shop> shops = shopRepository.findByMemberWithFiles(member).orElseThrow(NoSuchShopException::new);
+        shops.forEach(shop -> shop.getReviews()); // 강제 초기화를 위함
 
         return shops.stream().map(shop -> shop.toShopReadDto(fileUrl)).collect(Collectors.toList());
     }
