@@ -63,6 +63,7 @@ public class ReviewController {
             @RequestParam(name = "limit", defaultValue = "8", required = false) int limit
     ) {
         List<ReviewReadDto> reviewReadDtos = reviewService.readReviewsByPage(havePhoto, page, limit);
+        // havePhoto로 리뷰들이 분리가 되기 때문에 totalCount도 달라짐. 따라서 아래와 같은 함수로 totalCount를 따로계산
         long totalSize = reviewService.countByHavePhotos(havePhoto);
 
         return responseService.getPageResponse(reviewReadDtos, (int) totalSize, reviewReadDtos.size(), page);

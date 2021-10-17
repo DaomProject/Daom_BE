@@ -7,6 +7,8 @@ import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,8 +44,9 @@ public class ShopService {
 
         // locDesc로 주소 API 사용하여 locX, locY 찾기
         double[] shopXY = findShopXY(shopCreateDto.getLocDesc());
-        double locX = shopXY[0];
-        double locY = shopXY[1];
+        // result[0] 이 경도(longitude) result[1]이 위도(latitude)
+        double lon = shopXY[0];
+        double lat = shopXY[1];
 
         // 카테고리 찾기
         Category category = categoryRepository.findByName(shopCreateDto.getCategoryName())
@@ -63,8 +66,8 @@ public class ShopService {
                 .workWeek(shopCreateDto.getWorkWeek())
                 .startTime(shopCreateDto.getStartTime())
                 .endTime(shopCreateDto.getEndTime())
-                .locX(locX)
-                .locY(locY)
+                .latitude(lat)
+                .longitude(lon)
                 .build();
 
         // 태그 붙이기 ( 중복 제거 )
@@ -167,8 +170,8 @@ public class ShopService {
 
         // locDesc로 주소 API 사용하여 locX, locY 찾기
         double[] shopXY = findShopXY(shopEditDto.getLocDesc());
-        double locX = shopXY[0];
-        double locY = shopXY[1];
+        double lon = shopXY[0];
+        double lat = shopXY[1];
 
         // 카테고리 찾기
         Category category = categoryRepository.findByName(shopEditDto.getCategoryName())
@@ -176,7 +179,7 @@ public class ShopService {
 
         // 상점 정보 수정
         shop.updateByDto(shopEditDto, category);
-        shop.changeXY(locX, locY);
+        shop.changeXY(lat, lon);
 
         List<Menu> menus = shop.getMenus();
         ShopFile shopFile = shop.getShopFile();
@@ -261,6 +264,7 @@ public class ShopService {
         double[] result;
         try {
             result = naverMapApi.findShopXYApi(locDesc);
+            // result[0] 이 경도(longitude) result[1]이 위도(latitude)
         } catch (IOException e) {
             throw new NaveMapApiException(e);
         }
@@ -273,11 +277,17 @@ public class ShopService {
         return result;
     }
 
-    public List<ShopReadDto> readMyShop(Member member) {
+    public List<ShopReadDto> readMyShops(Member member) {
         List<Shop> shops = shopRepository.findByMemberWithFiles(member).orElseThrow(NoSuchShopException::new);
-        shops.forEach(Shop::getReviews); // 강제 초기화를 위함
+//        shops.forEach(Shop::getReviews); // 강제 초기화를 위함
 
         return shops.stream().map(shop -> shop.toShopReadDto(fileUrl)).collect(Collectors.toList());
+    }
+
+    public ShopReadDto readShop(Long shopId) {
+        Shop shop = shopRepository.findByIdWithMemberAndFiles(shopId).orElseThrow(NoSuchShopException::new);
+
+        return shop.toShopReadDto(fileUrl);
     }
 
     private void addNewShopTag(Shop shop, List<String> newTagNames) {
@@ -292,4 +302,14 @@ public class ShopService {
             }
         }
     }
+
+    public List<ShopSimpleDto> readSimpleShopsByPage(int page, int limit, double distance, double lat, double lon) {
+        Pageable pageable = PageRequest.of(page, limit);
+        //TODO MariaDB로 변경 후 해당 로직 수행 해보기
+        List<Shop> shopsByDistance = shopRepository.findPageByDistance(pageable, distance, lat, lon);
+
+        List<ShopSimpleDto> shopSimpleDtos = shopsByDistance.stream().map(shop -> shop.toShopSimpleDto(fileUrl)).collect(Collectors.toList());
+        return shopSimpleDtos;
+    }
+
 }

@@ -19,21 +19,6 @@ public class MyInfoStudentDto {
     private int likeNum;
 
 
-//    @Builder
-//    public MyInfoStudentDto(String username, String nickname, String univname, String tel, Long admissionYear, Long point, int level) {
-//        this.username = username;
-//        this.nickname = nickname;
-//        this.univname = univname;
-//        this.tel = tel;
-//        this.admissionYear = admissionYear;
-//        this.point = point;
-//        this.level = level;
-//
-//        // TODO
-//        this.reviewNum = 0;
-//        this.likeNum = 0;
-//    }
-
     public MyInfoStudentDto(Member member){
         Student student = member.getStudent();
         this.username = member.getUsername();

@@ -1,5 +1,6 @@
 package com.daom.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,8 +25,12 @@ public class StudentLikeShop {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
-    // TODO 잘되는지 확인
     @CreatedDate()
     @Column(name = "created_date")
     private LocalDateTime createdDate;
+
+    public StudentLikeShop(Student student, Shop shop) {
+        this.student = student;
+        this.shop = shop;
+    }
 }

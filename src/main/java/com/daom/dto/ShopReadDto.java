@@ -43,6 +43,13 @@ public class ShopReadDto {
 
     private List<MenuReadDto> menus;
 
+    // 추천수
+    private int likeNum;
+    // 찜 개수
+    private int totalZzimNum;
+    // 리뷰 총 수
+    private int totalReviewNum;
+
     private List<ReviewReadDto> textReviews;
 
     private List<ReviewReadDto> photoReviews;
@@ -52,7 +59,9 @@ public class ShopReadDto {
     public ShopReadDto(Long id, String categoryName, String thumbnail, String name,
                        String tel, String jehueDesc, String description, String locDesc,
                        String workWeek, LocalTime startTime, LocalTime endTime, List<String> tags,
-                       List<MenuReadDto> menus, List<ReviewReadDto> textReviews, List<ReviewReadDto> photoReviews) {
+                       List<MenuReadDto> menus, List<ReviewReadDto> textReviews, List<ReviewReadDto> photoReviews,
+                       int likeNum, int totalZzimNum, int totalReviewNum
+    ) {
         this.id = id;
         this.categoryName = categoryName;
         this.thumbnail = thumbnail;
@@ -68,5 +77,8 @@ public class ShopReadDto {
         this.menus = menus;
         this.textReviews = textReviews;
         this.photoReviews = photoReviews;
+        this.likeNum = likeNum;
+        this.totalReviewNum = totalReviewNum;
+        this.totalZzimNum = totalZzimNum;
     }
 }

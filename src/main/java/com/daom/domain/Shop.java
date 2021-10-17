@@ -1,9 +1,6 @@
 package com.daom.domain;
 
-import com.daom.dto.MenuReadDto;
-import com.daom.dto.ReviewReadDto;
-import com.daom.dto.ShopCreateDto;
-import com.daom.dto.ShopReadDto;
+import com.daom.dto.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,11 +51,12 @@ public class Shop extends BaseTimeEntity {
     @Column(nullable = true, name = "loc_detail_desc")
     private String locDetailDesc;
 
-    @Column(nullable = false, name = "location_x")
-    private Double locX;
+    @Column(nullable = false, name = "latitude")
+    private Double lat;
 
-    @Column(nullable = false, name = "location_y")
-    private Double locY;
+    @Column(nullable = false, name = "longitude")
+    private Double lon;
+
 
     // 영업 요일 ( 월화수, 월화수목금, 수목금 이런식으로 String으로 저장 , 무휴면 null)
     @Column(nullable = true, name = "work_week")
@@ -71,15 +69,11 @@ public class Shop extends BaseTimeEntity {
     private LocalTime endTime;
 
     @Column(nullable = false, name = "like_num")
-    private Long like;
-
-    @Column(nullable = false, name = "unlike_num")
-    private Long unlike;
+    private int like;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
 
-    //썸네일 관련 TODO
     @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShopFile shopFile;
 
@@ -93,7 +87,7 @@ public class Shop extends BaseTimeEntity {
     @Builder
     public Shop(Member member, Category category, String name, String tel,
                 String jehueDesc, String description, String workWeek,
-                String locDesc, String locDetailDesc, Double locX, Double locY,
+                String locDesc, String locDetailDesc, Double longitude, Double latitude,
                 LocalTime startTime, LocalTime endTime) {
         this.member = member;
         this.category = category;
@@ -105,12 +99,11 @@ public class Shop extends BaseTimeEntity {
         this.locDesc = locDesc;
         this.locDetailDesc = locDetailDesc;
         this.workWeek = workWeek;
-        this.locX = locX; // 좌표는 검색API 이용
-        this.locY = locY; // 검색 API 이용
+        this.lon = longitude; // 좌표는 검색API 이용
+        this.lat = latitude; // 검색 API 이용
         this.startTime = startTime;
         this.endTime = endTime;
-        this.like = 0L;
-        this.unlike = 0L;
+        this.like = 0;
     }
 
     public void addMenu(Menu menu) {
@@ -124,6 +117,7 @@ public class Shop extends BaseTimeEntity {
     }
 
     public void updateByDto(ShopCreateDto shopCreateDto, Category category) {
+        // 태그, 파일, thumbnail을 제외한 모든 수정을 담당
         this.category = category;
 
         this.name = shopCreateDto.getName();
@@ -137,9 +131,9 @@ public class Shop extends BaseTimeEntity {
         this.endTime = shopCreateDto.getEndTime();
     }
 
-    public void changeXY(Double locX, Double locY) {
-        this.locX = locX;
-        this.locY = locY;
+    public void changeXY(Double lat, Double lon) {
+        this.lat = lat;
+        this.lon = lon;
     }
 
     public void detachShopTag(ShopTag deletedShopTag) {
@@ -168,6 +162,8 @@ public class Shop extends BaseTimeEntity {
         List<MenuReadDto> menuDtoList = menus.stream().map(menu -> menu.toReadDto(fileUrl)).collect(Collectors.toList());
 
         List<ReviewReadDto> reviewDtoList = reviews.stream().map(Review::toReadDto).collect(Collectors.toList());
+        int totalReviewNum = reviewDtoList.size();
+
         Collections.reverse(reviewDtoList); // 최신순으로 조회를 원하기 때문에 리스트를 뒤집음
 
         List<ReviewReadDto> photoReviewDtoList = reviewDtoList.stream().filter(reviewDto -> !reviewDto.getPhotos().isEmpty()).collect(Collectors.toList());
@@ -196,6 +192,41 @@ public class Shop extends BaseTimeEntity {
                 .textReviews(reviewDtoList)
                 .photoReviews(photoReviewDtoList)
                 .tags(tagNames)
+                .totalReviewNum(totalReviewNum)
+                .totalZzimNum(0) // TODO 찜기능 추가시 변경
+                .likeNum(like)
+                .build();
+    }
+
+    public ShopSimpleDto toShopSimpleDto(String fileUrl) {
+        // Shop thumb 주소 얻기
+        String thumbUrl = null;
+        if (this.shopFile != null) {
+            String thumbnailSavedName = this.shopFile.getFile().getSavedName();
+            thumbUrl = fileUrl + thumbnailSavedName;
+        }
+
+        // 태그 얻기
+        List<String> tagNames = new ArrayList<>();
+        tags.forEach(t -> tagNames.add(t.getTag().getName()));
+
+        // List<Menu> -> List<MenuReadDto> + thumb 주소얻기까지 해야함
+        List<String> menuNames = menus.stream().filter(Menu::getIsRecommend).map(Menu::getName).collect(Collectors.toList());
+
+        int totalReviewNum = reviews.size();
+
+        return ShopSimpleDto.builder()
+                .id(id)
+                .thumbnail(thumbUrl)
+                .categoryName(category.getName())
+                .description(description)
+                .jehueDesc(jehueDesc)
+                .name(name)
+                .tags(tagNames)
+                .likeNum(like)
+                .zzimNum(0) // TODO
+                .reviewNum(totalReviewNum)
+                .menuNames(menuNames)
                 .build();
     }
 }

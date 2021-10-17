@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class StudentController {
     private final StudentService studentService;
     private final ResponseService responseService;
-    private final MemberService memberService;
 
     // 학생 마이페이지 조회
     @GetMapping("/me")
@@ -30,23 +29,6 @@ public class StudentController {
         return responseService.getSingleResponse(studentService.myInfo(studentId));
     }
 
-//    @GetMapping("/{id}")
-//    public Member findById(@PathVariable Long id) {
-//        return memberService.findById(id);
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public String delete(@PathVariable Long id) {
-//        Member findMember = memberService.findById(id);
-//        memberService.delete(findMember);
-//
-//        return "Done";
-//    }
-
-//    @PutMapping("/{id}")
-//    public Member update(@PathVariable Long id, @RequestBody Member changeMember) {
-//        return memberService.update(id, changeMember);
-//    }
     @PostMapping(value = "/profile")//프로필사진업로드
     public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
         Student student = userDetails.getMember().getStudent();
