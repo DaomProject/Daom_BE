@@ -57,7 +57,6 @@ public class Shop extends BaseTimeEntity {
     @Column(nullable = false, name = "longitude")
     private Double lon;
 
-
     // 영업 요일 ( 월화수, 월화수목금, 수목금 이런식으로 String으로 저장 , 무휴면 null)
     @Column(nullable = true, name = "work_week")
     private String workWeek;
@@ -157,6 +156,14 @@ public class Shop extends BaseTimeEntity {
         this.zzimNum -= 1;
     }
 
+    public void plusLikeNum() {
+        this.like += 1;
+    }
+
+    public void minusLikeNum(){
+        this.like -= 1;
+    }
+
     public ShopReadDto toShopReadDto(String fileUrl) {
         // Shop thumb 주소 얻기
         String thumbUrl = null;
@@ -240,6 +247,5 @@ public class Shop extends BaseTimeEntity {
                 .menuNames(menuNames)
                 .build();
     }
-
 
 }

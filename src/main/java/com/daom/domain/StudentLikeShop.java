@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Entity
-public class StudentLikeShop {
+public class StudentLikeShop extends CreateTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_like_shop_id")
@@ -24,10 +24,6 @@ public class StudentLikeShop {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
     private Shop shop;
-
-    @CreatedDate()
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
 
     public StudentLikeShop(Student student, Shop shop) {
         this.student = student;

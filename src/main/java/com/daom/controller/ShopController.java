@@ -10,6 +10,7 @@ import com.daom.dto.ShopSimpleDto;
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.MenuIndexAndFileNotMatchException;
 import com.daom.exception.NotAuthorityThisJobException;
+import com.daom.service.LikeService;
 import com.daom.service.ResponseService;
 import com.daom.service.ShopService;
 import com.daom.service.ZzimService;
@@ -29,6 +30,7 @@ public class ShopController {
     private final ShopService shopService;
     private final ResponseService responseService;
     private final ZzimService zzimService;
+    private final LikeService likeService;
 
     @GetMapping("/myshop")
     public RestResponse readMyShop(
@@ -138,8 +140,42 @@ public class ShopController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("id") Long shopId
     ){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null) {
+            throw new NotAuthorityThisJobException();
+        }
         Long studentId = userDetails.getMember().getStudent().getId();
         zzimService.deleteZzim(studentId, shopId);
+
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/{id}/like")
+    public RestResponse like(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("id") Long shopId
+    ){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null){
+            throw new NotAuthorityThisJobException();
+        }
+        Long studentId = student.getId();
+        likeService.like(studentId, shopId);
+
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/{id}/unlike")
+    public RestResponse unLike(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("id") Long shopId
+    ){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null){
+            throw new NotAuthorityThisJobException();
+        }
+        Long studentId = student.getId();
+        likeService.unLike(studentId, shopId);
 
         return responseService.getSuccessResponse();
     }

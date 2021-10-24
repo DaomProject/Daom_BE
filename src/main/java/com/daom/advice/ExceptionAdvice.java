@@ -93,6 +93,12 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-1012, "해당 찜 항목을 찾을 수 없습니다.");
     }
 
+    @ExceptionHandler(NoSuchLikeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse noSuchLikeException(){
+        return responseService.getFailResponse(-1013, "해당 좋아요 항목을 찾을 수 없습니다.");
+    }
+
     @ExceptionHandler(FileStoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse fileStoreException(){
