@@ -34,8 +34,14 @@ public class Shop extends BaseTimeEntity {
     @Column(nullable = false)
     private String tel;
 
-    @Column(nullable = false, name = "jehue_desc")
-    private String jehueDesc;
+    @Column(nullable = false, name = "jehue_service")
+    private String jehueService;
+
+    @Column(nullable = false, name = "jehue_discount")
+    private String jehueDiscount;
+
+    @Column(nullable = false, name = "jehue_coupon")
+    private String jehueCoupon;
 
     @Column(nullable = false, name = "is_premium")
     private Boolean isPremium;
@@ -86,16 +92,19 @@ public class Shop extends BaseTimeEntity {
     private List<ShopTag> tags = new ArrayList<>();
 
     private static final int REVIEW_SIZE = 3;
+
     @Builder
     public Shop(Member member, Category category, String name, String tel,
-                String jehueDesc, String description, String workWeek,
+                String description, String workWeek, String jehueCoupon, String jehueService, String jehueDiscount,
                 String locDesc, String locDetailDesc, Double longitude, Double latitude,
                 LocalTime startTime, LocalTime endTime) {
         this.member = member;
         this.category = category;
         this.name = name;
         this.tel = tel;
-        this.jehueDesc = jehueDesc;
+        this.jehueCoupon = jehueCoupon;
+        this.jehueService = jehueService;
+        this.jehueDiscount = jehueDiscount;
         this.isPremium = false;
         this.description = description;
         this.locDesc = locDesc;
@@ -125,7 +134,9 @@ public class Shop extends BaseTimeEntity {
 
         this.name = shopCreateDto.getName();
         this.tel = shopCreateDto.getTel();
-        this.jehueDesc = shopCreateDto.getJehueDesc();
+        this.jehueService = shopCreateDto.getJehueService();
+        this.jehueDiscount = shopCreateDto.getJehueDiscount();
+        this.jehueCoupon = shopCreateDto.getJehueCoupon();
         this.description = shopCreateDto.getDescription();
         this.locDesc = shopCreateDto.getLocDesc();
         this.locDetailDesc = shopCreateDto.getLocDetailDesc();
@@ -149,9 +160,10 @@ public class Shop extends BaseTimeEntity {
         this.tags.clear();
     }
 
-    public void plusZzimNum(){
+    public void plusZzimNum() {
         this.zzimNum += 1;
     }
+
     public void minusZzimNum() {
         this.zzimNum -= 1;
     }
@@ -160,7 +172,7 @@ public class Shop extends BaseTimeEntity {
         this.like += 1;
     }
 
-    public void minusLikeNum(){
+    public void minusLikeNum() {
         this.like -= 1;
     }
 
@@ -186,11 +198,11 @@ public class Shop extends BaseTimeEntity {
 
         List<ReviewReadDto> photoReviewDtoList = reviewDtoList.stream().filter(reviewDto -> !reviewDto.getPhotos().isEmpty()).collect(Collectors.toList());
         reviewDtoList.removeAll(photoReviewDtoList); // reviewDtoList에서 PhotoReivew를 제외
-        if(reviewDtoList.size() > REVIEW_SIZE) {
+        if (reviewDtoList.size() > REVIEW_SIZE) {
             reviewDtoList = reviewDtoList.subList(0, REVIEW_SIZE);
         }
 
-        if(photoReviewDtoList.size() > REVIEW_SIZE){
+        if (photoReviewDtoList.size() > REVIEW_SIZE) {
             photoReviewDtoList = photoReviewDtoList.subList(0, REVIEW_SIZE);
         }
 
@@ -200,7 +212,9 @@ public class Shop extends BaseTimeEntity {
                 .thumbnail(thumbUrl)
                 .name(name)
                 .tel(tel)
-                .jehueDesc(jehueDesc)
+                .jehueService(jehueService)
+                .jehueCoupon(jehueCoupon)
+                .jehueDiscount(jehueDiscount)
                 .description(description)
                 .locDesc(locDesc + " " + locDetailDesc)
                 .workWeek(workWeek)
@@ -238,7 +252,9 @@ public class Shop extends BaseTimeEntity {
                 .thumbnail(thumbUrl)
                 .categoryName(category.getName())
                 .description(description)
-                .jehueDesc(jehueDesc)
+                .jehueDiscount(jehueDiscount)
+                .jehueService(jehueService)
+                .jehueCoupon(jehueCoupon)
                 .name(name)
                 .tags(tagNames)
                 .likeNum(like)

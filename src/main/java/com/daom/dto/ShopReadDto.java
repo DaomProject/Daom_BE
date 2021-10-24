@@ -22,7 +22,9 @@ public class ShopReadDto {
     private String tel;
 
     // 제휴혜택 설명
-    private String jehueDesc;
+    private String jehueService;
+    private String jehueDiscount;
+    private String jehueCoupon;
 
     // 가게 설명
     private String description;
@@ -54,10 +56,9 @@ public class ShopReadDto {
 
     private List<ReviewReadDto> photoReviews;
 
-
     @Builder
     public ShopReadDto(Long id, String categoryName, String thumbnail, String name,
-                       String tel, String jehueDesc, String description, String locDesc,
+                       String tel, String jehueCoupon, String jehueDiscount, String jehueService, String description, String locDesc,
                        String workWeek, LocalTime startTime, LocalTime endTime, List<String> tags,
                        List<MenuReadDto> menus, List<ReviewReadDto> textReviews, List<ReviewReadDto> photoReviews,
                        int likeNum, int totalZzimNum, int totalReviewNum
@@ -67,7 +68,9 @@ public class ShopReadDto {
         this.thumbnail = thumbnail;
         this.name = name;
         this.tel = tel;
-        this.jehueDesc = jehueDesc;
+        this.jehueService = jehueService;
+        this.jehueDiscount = jehueDiscount;
+        this.jehueCoupon = jehueCoupon;
         this.description = description;
         this.locDesc = locDesc;
         this.workWeek = workWeek;

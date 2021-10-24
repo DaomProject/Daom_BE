@@ -18,7 +18,9 @@ public class ShopCreateDto {
     private String tel;
 
     // 제휴혜택 설명
-    private String jehueDesc;
+    private String jehueService;
+    private String jehueDiscount;
+    private String jehueCoupon;
 
     // 가게 설명
     private String description;
@@ -44,12 +46,15 @@ public class ShopCreateDto {
 
     @Builder
     public ShopCreateDto(String categoryName, String name, String tel,
-                         String jehueDesc, String description, String locDesc, String locDetailDesc,
+                         String jehueService, String jehueDiscount, String jehueCoupon,
+                         String description, String locDesc, String locDetailDesc,
                          String workWeek, LocalTime startTime, LocalTime endTime, List<MenuDto> menus) {
         this.categoryName = categoryName;
         this.name = name;
         this.tel = tel;
-        this.jehueDesc = jehueDesc;
+        this.jehueCoupon = jehueCoupon;
+        this.jehueService = jehueService;
+        this.jehueDiscount = jehueDiscount;
         this.description = description;
         this.locDesc = locDesc;
         this.locDetailDesc = locDetailDesc;
@@ -59,3 +64,4 @@ public class ShopCreateDto {
         this.menus = menus;
     }
 }
+
