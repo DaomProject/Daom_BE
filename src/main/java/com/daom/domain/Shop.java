@@ -225,7 +225,7 @@ public class Shop extends BaseTimeEntity {
                 .photoReviews(photoReviewDtoList)
                 .tags(tagNames)
                 .totalReviewNum(totalReviewNum)
-                .totalZzimNum(0) // TODO 찜기능 추가시 변경
+                .totalZzimNum(zzimNum)
                 .likeNum(like)
                 .build();
     }
@@ -258,7 +258,7 @@ public class Shop extends BaseTimeEntity {
                 .name(name)
                 .tags(tagNames)
                 .likeNum(like)
-                .zzimNum(0) // TODO
+                .zzimNum(zzimNum)
                 .reviewNum(totalReviewNum)
                 .menuNames(menuNames)
                 .build();
