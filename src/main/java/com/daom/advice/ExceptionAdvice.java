@@ -87,6 +87,12 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-1011, "해당 리뷰를 찾을 수 없습니다.");
     }
 
+    @ExceptionHandler(NoSuchZzimException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse noSuchZzimException(){
+        return responseService.getFailResponse(-1012, "해당 찜 항목을 찾을 수 없습니다.");
+    }
+
     @ExceptionHandler(FileStoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse fileStoreException(){

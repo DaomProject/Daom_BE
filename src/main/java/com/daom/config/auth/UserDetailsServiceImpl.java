@@ -19,10 +19,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByUsernameWithStudent(username).orElseThrow(() -> new UsernameNotFoundException("회원가입되어있지 않은 아이디입니다."));
-
-//        if(member.getRole() == Role.STUDENT){
-//            member.getStudent().getUniv().getName();
-//        }
         return new UserDetailsImpl(member);
     }
 }

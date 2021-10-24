@@ -2,14 +2,17 @@ package com.daom.controller;
 
 import com.daom.config.auth.UserDetailsImpl;
 import com.daom.domain.Member;
+import com.daom.domain.Student;
 import com.daom.dto.ShopAndMenuFilesDto;
 import com.daom.dto.ShopCreateDto;
 import com.daom.dto.ShopReadDto;
 import com.daom.dto.ShopSimpleDto;
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.MenuIndexAndFileNotMatchException;
+import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.service.ResponseService;
 import com.daom.service.ShopService;
+import com.daom.service.ZzimService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +28,7 @@ import java.util.List;
 public class ShopController {
     private final ShopService shopService;
     private final ResponseService responseService;
+    private final ZzimService zzimService;
 
     @GetMapping("/myshop")
     public RestResponse readMyShop(
@@ -112,6 +116,32 @@ public class ShopController {
         shopService.updateShop(loginMemberId, shopId, shopCreateDto, shopAndMenuFilesDto);
 
         return responseService.getSuccessResponse("Shop 수정 완료");
+    }
+
+    @PostMapping("/{id}/zzim")
+    public RestResponse zzim(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("id") Long shopId
+    ){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null){
+            throw new NotAuthorityThisJobException();
+        }
+        Long studentId = student.getId();
+        zzimService.saveZzim(studentId, shopId);
+
+        return responseService.getSuccessResponse();
+    }
+
+    @DeleteMapping("/{id}/zzim")
+    public RestResponse deleteZzim(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("id") Long shopId
+    ){
+        Long studentId = userDetails.getMember().getStudent().getId();
+        zzimService.deleteZzim(studentId, shopId);
+
+        return responseService.getSuccessResponse();
     }
 
 }

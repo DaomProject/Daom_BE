@@ -71,6 +71,9 @@ public class Shop extends BaseTimeEntity {
     @Column(nullable = false, name = "like_num")
     private int like;
 
+    @Column(nullable = false, name = "zzim_num")
+    private int zzimNum;
+
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
 
@@ -104,6 +107,7 @@ public class Shop extends BaseTimeEntity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.like = 0;
+        this.zzimNum = 0;
     }
 
     public void addMenu(Menu menu) {
@@ -144,6 +148,13 @@ public class Shop extends BaseTimeEntity {
     public void detachAllShopTag() {
         this.tags.forEach(t -> t.getTag().minusTagNum(1));
         this.tags.clear();
+    }
+
+    public void plusZzimNum(){
+        this.zzimNum += 1;
+    }
+    public void minusZzimNum() {
+        this.zzimNum -= 1;
     }
 
     public ShopReadDto toShopReadDto(String fileUrl) {
@@ -229,4 +240,6 @@ public class Shop extends BaseTimeEntity {
                 .menuNames(menuNames)
                 .build();
     }
+
+
 }
