@@ -25,7 +25,7 @@ public class ShopFile {
     private UploadFile file;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "desc")
+    @Column(nullable = false, name = "description")
     private FileDesc desc;
 
     @Builder
