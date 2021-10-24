@@ -10,11 +10,13 @@ import com.daom.repository.StudentRepository;
 import com.daom.repository.UnivRepository;
 import com.daom.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @RequiredArgsConstructor
+@Profile("localDB")
 @Component
 public class InitDb {
 

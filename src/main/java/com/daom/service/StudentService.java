@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StudentService {
-    private final FileStorage fileStorage;
+    private final FileCloudStorage fileCloudStorage;
     private final MemberRepository memberRepository;
     private final StudentRepository studentRepository;
 
@@ -26,7 +26,7 @@ public class StudentService {
         if(student.getThumbnailName()!=null){
             profileDelete(studentId);
         }
-        UploadFile uploadedThumbnail = fileStorage.storeFile(thumbnail);
+        UploadFile uploadedThumbnail = fileCloudStorage.storeFile(thumbnail);
 
         student.addThumbnail(uploadedThumbnail);
 
@@ -34,7 +34,7 @@ public class StudentService {
     @Transactional
     public void profileDelete(Long studentId){
         Student student = studentRepository.findById(studentId).orElseThrow(NoSuchStudentException::new);
-        fileStorage.deleteFile(student.getThumbnailName());
+        fileCloudStorage.deleteFile(student.getThumbnailName());
         student.deleteThumbnail();
 
     }

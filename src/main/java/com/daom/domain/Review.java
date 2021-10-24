@@ -83,23 +83,16 @@ public class Review extends BaseTimeEntity {
 
         List<String> tagNames = new ArrayList<>();
         tags.forEach(t -> tagNames.add(t.getTag().getName()));
-        String thumbUrl = null;
-        StringBuilder sb = new StringBuilder();
-        List<String> photoUrls = new ArrayList<>();
+        String thumbNames = "";
+        List<String> photoNames = new ArrayList<>();
 
         if(student.getThumbnail() != null){
-            sb.append("http://localhost:8080/files?filename=");
-            sb.append(student.getThumbnail().getSavedName());
-            thumbUrl = sb.toString();
-            sb.setLength(0);
+            thumbNames = student.getThumbnail().getSavedName();
         }
 
         if (havePhotos) {
             photos.forEach(p -> {
-                sb.append("http://localhost:8080/files?filename=");
-                sb.append(p.getFile().getSavedName());
-                photoUrls.add(sb.toString());
-                sb.setLength(0);
+                photoNames.add(p.getFile().getSavedName());
             });
         }
 
@@ -107,12 +100,12 @@ public class Review extends BaseTimeEntity {
                 .id(id)
                 .nickname(student.getMember().getNickname())
                 .level(student.getLevel())
-                .userThumbnail(thumbUrl)
+                .userThumbnail(thumbNames)
                 .content(content)
                 .like(like)
                 .unlike(unlike)
                 .tags(tagNames)
-                .photos(photoUrls)
+                .photos(photoNames)
                 .build();
 
     }

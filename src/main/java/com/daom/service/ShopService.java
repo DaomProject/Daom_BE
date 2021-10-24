@@ -26,7 +26,7 @@ public class ShopService {
     private final CategoryRepository categoryRepository;
     private final ShopRepository shopRepository;
     private final TagRepository tagRepository;
-    private final FileStorage fileStorage;
+    private final FileCloudStorage fileCloudStorage;
     private final NaverMapApi naverMapApi;
     private final ReviewService reviewService;
     private final ZzimRepository zzimRepository;
@@ -52,7 +52,6 @@ public class ShopService {
         // 카테고리 찾기
         Category category = categoryRepository.findByName(shopCreateDto.getCategoryName())
                 .orElseThrow(NoSuchCategoryException::new);
-
 
         // 업체 엔티티 생성
         Shop newShop = Shop.builder()
@@ -84,7 +83,7 @@ public class ShopService {
 
         if (shopAndMenuFilesDto.getThumbnail() != null) {
 
-            UploadFile thumbnailFile = fileStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
+            UploadFile thumbnailFile = fileCloudStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
 
             ShopFile shopThumbnail = ShopFile.builder()
                     .shop(newShop)
@@ -118,7 +117,7 @@ public class ShopService {
         if (menuMultipartFiles != null && !menuMultipartFiles.isEmpty()) {
 
             // - 파일 저장
-            List<UploadFile> menuFileList = fileStorage.storeFiles(menuMultipartFiles);
+            List<UploadFile> menuFileList = fileCloudStorage.storeFiles(menuMultipartFiles);
             int index = 0;
 
             for (int havingFileIndex : menuHavingFileIndexes) {
@@ -195,6 +194,7 @@ public class ShopService {
         shopFileDelete(shopFile);
 
         menus.clear();
+        shop.detachShopFile();
 
         List<MenuDto> menusDto = shopEditDto.getMenus();
         List<Menu> menuList = makeMenusWithFile(menusDto, shopAndMenuFilesDto);
@@ -205,7 +205,7 @@ public class ShopService {
         // 썸네일 삽입
         if (shopAndMenuFilesDto.getThumbnail() != null) {
 
-            UploadFile thumbnailFile = fileStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
+            UploadFile thumbnailFile = fileCloudStorage.storeFile(shopAndMenuFilesDto.getThumbnail());
 
             ShopFile shopThumbnail = ShopFile.builder()
                     .shop(shop)
@@ -252,7 +252,7 @@ public class ShopService {
 
     private void shopFileDelete(ShopFile shopFile) {
         if (shopFile != null) {
-            fileStorage.deleteFile(shopFile.getFile().getSavedName());
+            fileCloudStorage.deleteFile(shopFile.getFile().getSavedName());
         }
     }
 
@@ -262,7 +262,7 @@ public class ShopService {
                     .map(Menu::getThumbnail)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            uploadFiles.forEach(uploadFile -> fileStorage.deleteFile(uploadFile.getSavedName()));
+            uploadFiles.forEach(uploadFile -> fileCloudStorage.deleteFile(uploadFile.getSavedName()));
         }
     }
 
@@ -286,14 +286,55 @@ public class ShopService {
     public List<ShopReadDto> readMyShops(Member member) {
         List<Shop> shops = shopRepository.findByMemberWithFiles(member).orElseThrow(NoSuchShopException::new);
 //        shops.forEach(Shop::getReviews); // 강제 초기화를 위함
+        List<ShopReadDto> shopReadDtos = shops.stream().map(Shop::toShopReadDto).collect(Collectors.toList());
+        shopReadDtos.forEach(this::readDtoAttachS3Link);
 
-        return shops.stream().map(shop -> shop.toShopReadDto(fileUrl)).collect(Collectors.toList());
+        return shopReadDtos;
     }
 
     public ShopReadDto readShop(Long shopId) {
         Shop shop = shopRepository.findByIdWithMemberAndFiles(shopId).orElseThrow(NoSuchShopException::new);
+        ShopReadDto shopReadDto = shop.toShopReadDto();
 
-        return shop.toShopReadDto(fileUrl);
+        // 아직 썸네일과 메뉴 썸네일들이 s3 링크가 아닌 파일이름으로만 되어있음. 따라서 이를 s3링크로 변경해주어야함.
+        readDtoAttachS3Link(shopReadDto);
+
+        return shopReadDto;
+    }
+
+    // readDto에 설정된 이미지 이름들을 링크로 바꿔줌
+    private void readDtoAttachS3Link(ShopReadDto shopReadDto) {
+        // Shop thumb 주소 설정
+        if(!shopReadDto.getThumbnail().equals("")){
+            String thumbnailSavedName = shopReadDto.getThumbnail();
+            String thumbUrl = fileCloudStorage.getUrl(thumbnailSavedName);
+            shopReadDto.setThumbnail(thumbUrl);
+        }
+
+        // menu thumb 주소 설정
+        List<MenuReadDto> menuDtos = shopReadDto.getMenus();
+        menuDtos.forEach(m -> {
+            if(!m.getThumbnail().equals("")){
+                m.setThumbnail(fileCloudStorage.getUrl(m.getThumbnail()));
+            }
+        });
+        shopReadDto.setMenus(menuDtos);
+
+        // photo review 주소 설정
+        List<ReviewReadDto> photoReviews = shopReadDto.getPhotoReviews();
+        photoReviews.forEach(photoReview -> {
+            List<String> photos = photoReview.getPhotos().stream().map(fileCloudStorage::getUrl).collect(Collectors.toList());
+            photoReview.setPhotos(photos);
+        });
+    }
+
+    // simpleDto에 설정된 이미지 이름들을 링크로 바꿔줌
+    private void simpleDtoAttachS3Link(ShopSimpleDto shopSimpleDto) {
+        if(!shopSimpleDto.getThumbnail().equals("")){
+            String thumbnailSavedName = shopSimpleDto.getThumbnail();
+            String thumbUrl = fileCloudStorage.getUrl(thumbnailSavedName);
+            shopSimpleDto.setThumbnail(thumbUrl);
+        }
     }
 
     private void addNewShopTag(Shop shop, List<String> newTagNames) {
@@ -311,10 +352,12 @@ public class ShopService {
 
     public List<ShopSimpleDto> readSimpleShopsByPage(int page, int limit, double distance, double lat, double lon) {
         Pageable pageable = PageRequest.of(page, limit);
-        //TODO MariaDB로 변경 후 해당 로직 수행 해보기
         List<Shop> shopsByDistance = shopRepository.findPageByDistance(pageable, distance, lat, lon);
 
         List<ShopSimpleDto> shopSimpleDtos = shopsByDistance.stream().map(shop -> shop.toShopSimpleDto(fileUrl)).collect(Collectors.toList());
+        // Shop thumb 주소 설정
+        shopSimpleDtos.forEach(this::simpleDtoAttachS3Link);
+
         return shopSimpleDtos;
     }
 

@@ -1,6 +1,6 @@
 package com.daom.controller;
 
-import com.daom.service.FileStorage;
+import com.daom.service.FileLocalStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -21,12 +21,12 @@ import java.nio.file.Files;
 @RestController
 public class FileController {
 
-    private final FileStorage fileStorage;
+    private final FileLocalStorage fileLocalStorage;
 
     @GetMapping
     public ResponseEntity<byte[]> getImage(@RequestParam("filename") String fileName) throws IOException {
 
-        File file = new File(fileStorage.getFullPath(fileName));
+        File file = new File(fileLocalStorage.getFullPath(fileName));
 
         ResponseEntity<byte[]> result = null;
 

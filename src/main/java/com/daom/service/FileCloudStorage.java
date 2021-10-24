@@ -1,7 +1,10 @@
 package com.daom.service;
 
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.daom.domain.UploadFile;
 import com.daom.exception.FileStoreException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,13 +12,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
-public class FileStorage {
+public class FileCloudStorage {
+
+    private final S3Service s3Service;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -42,14 +49,19 @@ public class FileStorage {
             return null;
         }
 
+        // s3 저장용 메타데이터
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+
         String originFilename = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(originFilename);
         long size = multipartFile.getSize();
         String ext = extractExt(originFilename);
-        log.info(getFullPath(storeFileName));
 
-        try {
-            multipartFile.transferTo(new File(getFullPath(storeFileName)));
+        objectMetadata.setContentLength(size);
+        objectMetadata.setContentType(multipartFile.getContentType());
+
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            s3Service.upload(inputStream, objectMetadata, storeFileName);
         } catch (IOException e) {
             throw new FileStoreException();
         }
@@ -60,22 +72,8 @@ public class FileStorage {
                 .extension(ext).build();
     }
 
-    public boolean deleteFile(String savedFileName){
-        File file = new File(getFullPath(savedFileName));
-
-        if(file.exists()){
-            if(file.delete()){
-                log.info("파일 삭제 : "+ savedFileName);
-                return true;
-            }else{
-                log.warn("파일 삭제 실패 : " +savedFileName);
-            }
-        }
-        else{
-            log.warn("파일이 존재하지않습니다.");
-        }
-
-        return false;
+    public void deleteFile(String savedFileName) {
+        s3Service.delete(savedFileName);
     }
 
     private String createStoreFileName(String originalFilename) {
@@ -86,7 +84,7 @@ public class FileStorage {
 
     // 확장자를 떼냄
     private String extractExt(String originalFilename) {
-        if(originalFilename != null){
+        if (originalFilename != null) {
             int pos = originalFilename.lastIndexOf(".");
             return originalFilename.substring(pos + 1);
         }
@@ -94,8 +92,7 @@ public class FileStorage {
         return null;
     }
 
-
-    public File getFile(String filename){
-        return new File(getFullPath(filename));
+    public String getUrl(String fileName) {
+        return s3Service.getUrl(fileName);
     }
 }

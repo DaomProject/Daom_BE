@@ -176,12 +176,11 @@ public class Shop extends BaseTimeEntity {
         this.like -= 1;
     }
 
-    public ShopReadDto toShopReadDto(String fileUrl) {
-        // Shop thumb 주소 얻기
-        String thumbUrl = null;
+    public ShopReadDto toShopReadDto() {
+//         Shop thumb 주소 얻기
+        String thumbnailSavedName = "";
         if (this.shopFile != null) {
-            String thumbnailSavedName = this.shopFile.getFile().getSavedName();
-            thumbUrl = fileUrl + thumbnailSavedName;
+            thumbnailSavedName = this.shopFile.getFile().getSavedName();
         }
 
         // 태그 얻기
@@ -189,7 +188,7 @@ public class Shop extends BaseTimeEntity {
         tags.forEach(t -> tagNames.add(t.getTag().getName()));
 
         // List<Menu> -> List<MenuReadDto> + thumb 주소얻기까지 해야함
-        List<MenuReadDto> menuDtoList = menus.stream().map(menu -> menu.toReadDto(fileUrl)).collect(Collectors.toList());
+        List<MenuReadDto> menuDtoList = menus.stream().map(Menu::toReadDto).collect(Collectors.toList());
 
         List<ReviewReadDto> reviewDtoList = reviews.stream().map(Review::toReadDto).collect(Collectors.toList());
         int totalReviewNum = reviewDtoList.size();
@@ -209,7 +208,7 @@ public class Shop extends BaseTimeEntity {
         return ShopReadDto.builder()
                 .id(id)
                 .categoryName(category.getName())
-                .thumbnail(thumbUrl)
+                .thumbnail(thumbnailSavedName)
                 .name(name)
                 .tel(tel)
                 .jehueService(jehueService)
@@ -232,10 +231,9 @@ public class Shop extends BaseTimeEntity {
 
     public ShopSimpleDto toShopSimpleDto(String fileUrl) {
         // Shop thumb 주소 얻기
-        String thumbUrl = null;
+        String thumbnailSavedName = "";
         if (this.shopFile != null) {
-            String thumbnailSavedName = this.shopFile.getFile().getSavedName();
-            thumbUrl = fileUrl + thumbnailSavedName;
+            thumbnailSavedName = this.shopFile.getFile().getSavedName();
         }
 
         // 태그 얻기
@@ -249,7 +247,7 @@ public class Shop extends BaseTimeEntity {
 
         return ShopSimpleDto.builder()
                 .id(id)
-                .thumbnail(thumbUrl)
+                .thumbnail(thumbnailSavedName)
                 .categoryName(category.getName())
                 .description(description)
                 .jehueDiscount(jehueDiscount)
@@ -264,4 +262,7 @@ public class Shop extends BaseTimeEntity {
                 .build();
     }
 
+    public void detachShopFile() {
+        this.shopFile = null;
+    }
 }

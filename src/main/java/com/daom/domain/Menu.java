@@ -58,20 +58,18 @@ public class Menu {
         this.thumbnail = thumbnail;
     }
 
-    public MenuReadDto toReadDto(String fileUrl) {
+    public MenuReadDto toReadDto() {
 
-        String thumbUrl = "";
+        String thumbnailSavedName = "";
         if (thumbnail != null) {
-            String thumbnailSavedName = thumbnail.getSavedName();
-            thumbUrl = fileUrl + thumbnailSavedName;
+            thumbnailSavedName = thumbnail.getSavedName();
         }
 
         return MenuReadDto.builder()
                 .name(name)
                 .price(price)
                 .isRecommend(isRecommend)
-                .thumbnail(thumbUrl)
+                .thumbnail(thumbnailSavedName)
                 .build();
-
     }
 }

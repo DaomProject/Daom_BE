@@ -49,7 +49,6 @@ public class ShopController {
         return responseService.getSingleResponse(shopReadDto);
     }
 
-// nowX = 경도 , nowY = 위도
     @GetMapping
     public RestResponse readShopPagesByDistance(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
