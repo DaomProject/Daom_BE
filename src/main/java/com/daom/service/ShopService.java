@@ -350,15 +350,36 @@ public class ShopService {
         }
     }
 
-    public List<ShopSimpleDto> readSimpleShopsByPage(int page, int limit, double distance, double lat, double lon) {
+    public ShopDtosAndCount readSimpleShopsSortedByDistance(int page, int limit, double distance, double lat, double lon) {
         Pageable pageable = PageRequest.of(page, limit);
         List<Shop> shopsByDistance = shopRepository.findPageByDistance(pageable, distance, lat, lon);
-
+        int totalCount = shopRepository.countByDistance(distance, lat, lon);
         List<ShopSimpleDto> shopSimpleDtos = shopsByDistance.stream().map(Shop::toShopSimpleDto).collect(Collectors.toList());
         // Shop thumb 주소 설정
         shopSimpleDtos.forEach(this::simpleDtoAttachS3Link);
 
-        return shopSimpleDtos;
+        return new ShopDtosAndCount(shopSimpleDtos, totalCount);
     }
 
+    public ShopDtosAndCount readSimpleShopsSortedByReviewNum(int page, int limit, double distance, double lat, double lon) {
+        Pageable pageable = PageRequest.of(page, limit);
+        List<Shop> shopsByReviewNum = shopRepository.findPageByReviewNum(pageable, distance, lat, lon);
+        int totalCount = shopRepository.countByDistance(distance, lat, lon);
+        List<ShopSimpleDto> shopSimpleDtos = shopsByReviewNum.stream().map(Shop::toShopSimpleDto).collect(Collectors.toList());
+        // Shop thumb 주소 설정
+        shopSimpleDtos.forEach(this::simpleDtoAttachS3Link);
+
+        return new ShopDtosAndCount(shopSimpleDtos, totalCount);
+    }
+
+    public ShopDtosAndCount readSimpleShopsSortedByLikeNum(int page, int limit, double distance, double lat, double lon) {
+        Pageable pageable = PageRequest.of(page, limit);
+        List<Shop> shopsByLikeNum = shopRepository.findPageByLikeNum(pageable, distance, lat, lon);
+        int totalCount = shopRepository.countByDistance(distance, lat, lon);
+        List<ShopSimpleDto> shopSimpleDtos = shopsByLikeNum.stream().map(Shop::toShopSimpleDto).collect(Collectors.toList());
+        // Shop thumb 주소 설정
+        shopSimpleDtos.forEach(this::simpleDtoAttachS3Link);
+
+        return new ShopDtosAndCount(shopSimpleDtos, totalCount);
+    }
 }

@@ -91,6 +91,9 @@ public class Shop extends BaseTimeEntity {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShopTag> tags = new ArrayList<>();
 
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentLikeShop> studentLikeShops = new ArrayList<>();
+
     private static final int REVIEW_SIZE = 3;
 
     @Builder

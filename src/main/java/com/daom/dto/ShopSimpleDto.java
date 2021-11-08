@@ -19,14 +19,13 @@ public class ShopSimpleDto {
     private Integer reviewNum;
     private Integer zzimNum;
     private String description;
-    private String jehueDesc;
     private List<String> menuNames;
 
     @Builder
     public ShopSimpleDto(Long id, String name, String categoryName,
                          String thumbnail, List<String> tags, Integer likeNum, Integer reviewNum,
                          String jehueService, String jehueCoupon, String jehueDiscount,
-                         Integer zzimNum, String description, String jehueDesc, List<String> menuNames) {
+                         Integer zzimNum, String description, List<String> menuNames) {
         this.id = id;
         this.name = name;
         this.categoryName = categoryName;
@@ -39,7 +38,6 @@ public class ShopSimpleDto {
         this.reviewNum = reviewNum;
         this.zzimNum = zzimNum;
         this.description = description;
-        this.jehueDesc = jehueDesc;
         this.menuNames = menuNames;
     }
 }

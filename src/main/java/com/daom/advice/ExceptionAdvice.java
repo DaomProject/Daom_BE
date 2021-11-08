@@ -99,6 +99,12 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-1013, "해당 좋아요 항목을 찾을 수 없습니다.");
     }
 
+    @ExceptionHandler(NotInsertSortedMethodException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse notInsertSortedMethodException(){
+        return responseService.getFailResponse(-1014, "정해지지않은 정렬방법입니다.");
+    }
+
     @ExceptionHandler(FileStoreException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse fileStoreException(){

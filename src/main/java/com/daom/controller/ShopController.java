@@ -7,6 +7,7 @@ import com.daom.dto.*;
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.MenuIndexAndFileNotMatchException;
 import com.daom.exception.NotAuthorityThisJobException;
+import com.daom.exception.NotInsertSortedMethodException;
 import com.daom.service.LikeService;
 import com.daom.service.ResponseService;
 import com.daom.service.ShopService;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -48,15 +50,28 @@ public class ShopController {
 
     @GetMapping
     public RestResponse readShopPagesByDistance(
+            @RequestParam(value = "sort", defaultValue = "distance", required = false) String sort, // distance, reviewnum, likenum
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "limit", defaultValue = "8", required = false) int limit,
-            @RequestParam(value = "lat", required = true) double latitude, // 위도
-            @RequestParam(value = "lon", required = true) double longitude, // 경도
-            @RequestParam(value = "dist", required = false, defaultValue = "5") double distance
+            @RequestParam(value = "lat", defaultValue = "35.8467367", required = false) double latitude, // 위도 default 위치는 전북대
+            @RequestParam(value = "lon", defaultValue = "127.1271732,17", required = false) double longitude, // 경도 default 위치는 전북대
+            @RequestParam(value = "dist", defaultValue = "10", required = false ) double distance // 어느정도 떨어진 거리까지 보여줄지? ( km 단위 )
     ){
-        List<ShopSimpleDto> shopSimpleDtos = shopService.readSimpleShopsByPage(page, limit, distance, latitude, longitude);
-//        TODO Count 변경
-        return responseService.getPageResponse(shopSimpleDtos, shopSimpleDtos.size(), shopSimpleDtos.size(), page);
+        ShopDtosAndCount shopDtosAndCount = null;
+
+        if(sort.equals("distance")){
+            shopDtosAndCount = shopService.readSimpleShopsSortedByDistance(page, limit, distance, latitude, longitude);
+        } else if(sort.equals("likenum")){
+            shopDtosAndCount = shopService.readSimpleShopsSortedByLikeNum(page, limit, distance, latitude, longitude);
+        }else if(sort.equals("reviewnum")){
+            shopDtosAndCount = shopService.readSimpleShopsSortedByReviewNum(page, limit, distance, latitude, longitude);
+        }else{
+            throw new NotInsertSortedMethodException();
+        }
+        List<ShopSimpleDto> shopSimpleDtos = shopDtosAndCount.getShopSimpleDtos();
+        int totalSize = shopDtosAndCount.getTotalSize();
+        //TODO Count 변경
+        return responseService.getPageResponse(shopSimpleDtos, totalSize, shopSimpleDtos.size(), page);
     }
 
     @PostMapping

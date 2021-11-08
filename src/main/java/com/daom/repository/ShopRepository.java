@@ -19,6 +19,10 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
             " order by " + HAVERSINE_FORMULA)
     List<Shop> findPageByDistance(Pageable pageable, @Param("distance") double distance, @Param("lat") double nowLat, @Param("lon") double nowLon);
 
+    @Query("select count(s) from Shop s where " + HAVERSINE_FORMULA + "< :distance" +
+            " order by " + HAVERSINE_FORMULA)
+    int countByDistance(@Param("distance") double distance, @Param("lat") double nowLat, @Param("lon") double nowLon);
+
     @Query("select s from Shop s" +
             " join fetch s.member smember" +
             " left outer join fetch s.shopFile sfile" +
@@ -34,4 +38,16 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
             " left outer join fetch sfile.file file" +
             " where s.member = :member")
     Optional<List<Shop>> findByMemberWithFiles(@Param("member") Member member);
+
+    @Query("select s from Shop s" +
+            " where " + HAVERSINE_FORMULA + "< :distance" +
+            " order by s.like desc")
+    List<Shop> findPageByLikeNum(Pageable pageable, @Param("distance") double distance, @Param("lat") double nowLat, @Param("lon") double nowLon);
+
+    @Query(value = "select s from Shop s" +
+            " left join s.reviews r" +
+            " where " + HAVERSINE_FORMULA + "< :distance" +
+            " group by s.id" +
+            " order by count(r.shop) desc")
+    List<Shop> findPageByReviewNum(Pageable pageable, @Param("distance") double distance, @Param("lat") double nowLat, @Param("lon") double nowLon);
 }
