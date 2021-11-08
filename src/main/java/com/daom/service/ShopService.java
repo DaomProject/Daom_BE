@@ -354,7 +354,7 @@ public class ShopService {
         Pageable pageable = PageRequest.of(page, limit);
         List<Shop> shopsByDistance = shopRepository.findPageByDistance(pageable, distance, lat, lon);
 
-        List<ShopSimpleDto> shopSimpleDtos = shopsByDistance.stream().map(shop -> shop.toShopSimpleDto(fileUrl)).collect(Collectors.toList());
+        List<ShopSimpleDto> shopSimpleDtos = shopsByDistance.stream().map(Shop::toShopSimpleDto).collect(Collectors.toList());
         // Shop thumb 주소 설정
         shopSimpleDtos.forEach(this::simpleDtoAttachS3Link);
 

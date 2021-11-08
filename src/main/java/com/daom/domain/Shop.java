@@ -229,7 +229,7 @@ public class Shop extends BaseTimeEntity {
                 .build();
     }
 
-    public ShopSimpleDto toShopSimpleDto(String fileUrl) {
+    public ShopSimpleDto toShopSimpleDto() {
         // Shop thumb 주소 얻기
         String thumbnailSavedName = "";
         if (this.shopFile != null) {
