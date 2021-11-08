@@ -7,10 +7,7 @@ import com.daom.dto.ReviewReadDto;
 import com.daom.exception.NoSuchReviewException;
 import com.daom.exception.NoSuchShopException;
 import com.daom.exception.NotAuthorityThisJobException;
-import com.daom.repository.ReviewRepository;
-import com.daom.repository.ShopRepository;
-import com.daom.repository.TagRepository;
-import com.daom.repository.UploadFileRepository;
+import com.daom.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -33,8 +30,10 @@ public class ReviewService {
     private final UploadFileRepository uploadFileRepository;
     private final TagRepository tagRepository;
     private final FileCloudStorage fileCloudStorage;
+    private final StudentLikeUnlikeReviewRepository studentLikeUnlikeReviewRepository;
 
     @Transactional
+
     public void createReview(Member loginMember, Long shopId, ReviewCreateDto reviewCreateDto, List<MultipartFile> photos) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);
 
@@ -241,4 +240,47 @@ public class ReviewService {
         reviewReadDto.setPhotos(photoUrls);
     }
 
+    @Transactional
+    public boolean like(Long reviewId, Student student, boolean isLike) {
+
+        Review review = reviewRepository.findById(reviewId).orElseThrow(NoSuchReviewException::new);
+        // StudentLikeUnlikeReview 테이블에 레코드 추가
+        StudentLikeUnlikeReview now;
+        StudentLikeUnlikeReview before = studentLikeUnlikeReviewRepository.findByStudentAndReview(student, review).orElse(null);
+        //  해당 review의 likenum or unlikenum을 갱신
+        if (before == null) {
+            // 아직 평가하지 않았다면
+            now = new StudentLikeUnlikeReview(student, review, isLike);
+            studentLikeUnlikeReviewRepository.save(now);
+            if (isLike) {
+                review.likeNumPlusNum(1);
+            } else {
+                review.unlikeNumPlusNum(1);
+            }
+        } else if (before.isLike() ^ isLike) {//평가 내용이 변경되었을 경우 (XOR)
+            if (isLike) {
+                // 이전 : unlike , 지금 : Like
+                review.unlikeNumPlusNum(-1);
+                review.likeNumPlusNum(1);
+                before.likeTogle();
+            } else {
+                // 이전 : like , 지금 : unlike
+                review.unlikeNumPlusNum(1);
+                review.likeNumPlusNum(-1);
+                before.likeTogle();
+            }
+        } else {
+            // 같은 평가 2번했을 경우 -> 취소
+            if (before.isLike()) {
+                review.likeNumPlusNum(-1);
+            } else {
+                review.unlikeNumPlusNum(-1);
+            }
+
+            studentLikeUnlikeReviewRepository.delete(before);
+            return false; // 취소만 했으면 false 리턴
+        }
+
+        return true; // 변경이 이루어진다면 true 리턴
+    }
 }

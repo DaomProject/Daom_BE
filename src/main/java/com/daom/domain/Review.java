@@ -47,6 +47,9 @@ public class Review extends BaseTimeEntity {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewFile> photos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentLikeUnlikeReview> studentLikeUnlikeReviews = new ArrayList<>();
+
     @Builder
     public Review(Shop shop, Student student, String content) {
         this.shop = shop;
@@ -55,6 +58,14 @@ public class Review extends BaseTimeEntity {
         this.like = 0;
         this.unlike = 0;
         this.havePhotos = false;
+    }
+
+    public void likeNumPlusNum(int num){
+        like += num;
+    }
+
+    public void unlikeNumPlusNum(int num){
+        unlike += num;
     }
 
     public void updateContent(String content) {

@@ -2,10 +2,12 @@ package com.daom.controller;
 
 import com.daom.config.auth.UserDetailsImpl;
 import com.daom.domain.Member;
+import com.daom.domain.Student;
 import com.daom.dto.ReviewCreateDto;
 import com.daom.dto.ReviewDtosAndCount;
 import com.daom.dto.ReviewReadDto;
 import com.daom.dto.response.RestResponse;
+import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.service.ResponseService;
 import com.daom.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -58,6 +58,35 @@ public class ReviewController {
         return responseService.getSuccessResponse("리뷰 삭제 완료");
     }
 
+    @PostMapping("/{reviewId}/like")
+    public RestResponse likeReview(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                     @PathVariable("reviewId") Long reviewId){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null){
+            throw new NotAuthorityThisJobException(); // 학생 계정만 리뷰에대한 좋아요, 싫어요 할 수 있다.
+        }
+        boolean done = reviewService.like(reviewId, student, true);
+        if(!done){
+            return responseService.getSuccessResponse("리뷰 좋아요 취소");
+        }
+
+        return responseService.getSuccessResponse("리뷰 좋아요 완료");
+    }
+
+    @PostMapping("/{reviewId}/unlike")
+    public RestResponse unlikeReview(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                   @PathVariable("reviewId") Long reviewId){
+        Student student = userDetails.getMember().getStudent();
+        if(student == null){
+            throw new NotAuthorityThisJobException(); // 학생 계정만 리뷰에대한 좋아요, 싫어요 할 수 있다.
+        }
+        boolean done = reviewService.like(reviewId, student, false);
+        if(!done){
+            return responseService.getSuccessResponse("리뷰 싫어요 취소");
+        }
+
+        return responseService.getSuccessResponse("리뷰 싫어요 완료");
+    }
 
     @GetMapping
     public RestResponse readReviews(
