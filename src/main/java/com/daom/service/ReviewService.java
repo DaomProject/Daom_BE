@@ -1,10 +1,9 @@
 package com.daom.service;
 
 import com.daom.domain.*;
-import com.daom.dto.MenuReadDto;
 import com.daom.dto.ReviewCreateDto;
+import com.daom.dto.ReviewDtosAndCount;
 import com.daom.dto.ReviewReadDto;
-import com.daom.dto.ShopReadDto;
 import com.daom.exception.NoSuchReviewException;
 import com.daom.exception.NoSuchShopException;
 import com.daom.exception.NotAuthorityThisJobException;
@@ -189,31 +188,49 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<ReviewReadDto> readReviewsByPage(Boolean havePhoto, int page, int limit) {
+    public ReviewDtosAndCount readReviewsByPage(Boolean havePhoto, int page, int limit, long shopId) {
+
         Pageable pageable = PageRequest.of(page, limit);
-        List<Review> reviews = null;
-        if (!havePhoto) {
-            // 글 리뷰
-            reviews = reviewRepository.findByPageWithNotPhotos(pageable);
+        int totalSize = 0;
+        List<Review> reviews = new ArrayList<>();
+
+        if (shopId != -1) {
+            // 해당 상점의 리뷰 검색
+            Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);
+            if (!havePhoto) {
+                // 글 리뷰
+                reviews = reviewRepository.findBypageAndShopWithoutPhotos(pageable, shop);
+            } else {
+                // 사진 리뷰
+                reviews = reviewRepository.findByPageAndShopWithPhotos(pageable, shop);
+            }
+
+            totalSize = Math.toIntExact(reviewRepository.countByHavePhotosAndShop(havePhoto, shop));
         } else {
-            // 사진 리뷰
-            reviews = reviewRepository.findByPageWithPhotos(pageable);
+            // 전체 리뷰 검색
+            if (!havePhoto) {
+                // 글 리뷰
+                reviews = reviewRepository.findByPageWithoutPhotos(pageable);
+            } else {
+                // 사진 리뷰
+                reviews = reviewRepository.findByPageWithPhotos(pageable);
+            }
+
+            totalSize = Math.toIntExact(reviewRepository.countByHavePhotos(havePhoto));
+
         }
+
 
         List<ReviewReadDto> reviewReadDtoList = reviews.stream().map(Review::toReadDto).collect(Collectors.toList());
         reviewReadDtoList.forEach(this::reviewReadDtoAttachS3Link);
 
-        return reviewReadDtoList;
-    }
-
-    public long countByHavePhotos(boolean havePhoto) {
-        return reviewRepository.countByHavePhotos(havePhoto);
+        return new ReviewDtosAndCount(reviewReadDtoList, totalSize);
     }
 
     // reviewDto에 설정된 이미지 이름들을 링크로 바꿔줌
     private void reviewReadDtoAttachS3Link(ReviewReadDto reviewReadDto) {
         // userthumb 주소 설정
-        if(!reviewReadDto.getUserThumbnail().equals("")){
+        if (!reviewReadDto.getUserThumbnail().equals("")) {
             String thumbnailSavedName = reviewReadDto.getUserThumbnail();
             String thumbUrl = fileCloudStorage.getUrl(thumbnailSavedName);
             reviewReadDto.setUserThumbnail(thumbUrl);

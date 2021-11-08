@@ -3,6 +3,7 @@ package com.daom.controller;
 import com.daom.config.auth.UserDetailsImpl;
 import com.daom.domain.Member;
 import com.daom.dto.ReviewCreateDto;
+import com.daom.dto.ReviewDtosAndCount;
 import com.daom.dto.ReviewReadDto;
 import com.daom.dto.response.RestResponse;
 import com.daom.service.ResponseService;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -60,12 +63,13 @@ public class ReviewController {
     public RestResponse readReviews(
             @RequestParam(name = "photo", defaultValue = "false", required = false) Boolean havePhoto,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(name = "limit", defaultValue = "8", required = false) int limit
+            @RequestParam(name = "limit", defaultValue = "8", required = false) int limit,
+            @RequestParam(name = "shopId", defaultValue = "-1", required = false) long shopId
     ) {
-        List<ReviewReadDto> reviewReadDtos = reviewService.readReviewsByPage(havePhoto, page, limit);
-        // havePhoto로 리뷰들이 분리가 되기 때문에 totalCount도 달라짐. 따라서 아래와 같은 함수로 totalCount를 따로계산
-        long totalSize = reviewService.countByHavePhotos(havePhoto);
-
-        return responseService.getPageResponse(reviewReadDtos, (int) totalSize, reviewReadDtos.size(), page);
+        // reviewCount + List<reviewReadDto>
+        ReviewDtosAndCount reviewDtosAndCount = reviewService.readReviewsByPage(havePhoto, page, limit, shopId);
+        List<ReviewReadDto> reviewDtos = reviewDtosAndCount.getReviewDtos();
+        int totalSize = reviewDtosAndCount.getTotalSize();
+        return responseService.getPageResponse(reviewDtos, totalSize, reviewDtos.size(), page);
     }
 }
