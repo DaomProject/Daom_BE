@@ -118,6 +118,12 @@ public class ShopController {
             @RequestPart(value = "menufiles", required = false) List<MultipartFile> menuFiles,
             @RequestParam(value = "index", required = false) List<Integer> menuHavingFileIndex
     ) {
+
+        if(menuHavingFileIndex != null && menuFiles != null){
+            if (menuFiles.size() != menuHavingFileIndex.size()) {
+                throw new MenuIndexAndFileNotMatchException();
+            }
+        }
         Long loginMemberId = userDetails.getMember().getId();
 
         ShopAndMenuFilesDto shopAndMenuFilesDto = ShopAndMenuFilesDto.builder()

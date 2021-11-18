@@ -73,7 +73,9 @@ public class FileCloudStorage {
     }
 
     public void deleteFile(String savedFileName) {
-        s3Service.delete(savedFileName);
+        if(savedFileName != null){
+            s3Service.delete(savedFileName);
+        }
     }
 
     private String createStoreFileName(String originalFilename) {

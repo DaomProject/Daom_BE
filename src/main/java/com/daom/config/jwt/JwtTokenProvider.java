@@ -28,8 +28,8 @@ public class JwtTokenProvider {
 
     private String rolePrefix = "ROLE_";
 
-    // 토큰 유효시간 : 1시간
-    private final long tokenValidMilliSecond = 1000L * 60 * 60;
+    // 토큰 유효시간 : 4시간
+    private final long tokenValidMilliSecond = 1000L * 60 * 60 * 4;
 
     private final UserDetailsService userDetailsService;
 

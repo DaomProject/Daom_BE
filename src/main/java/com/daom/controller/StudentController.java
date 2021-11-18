@@ -32,7 +32,7 @@ public class StudentController {
     @GetMapping("/my-likeshops")
     public RestResponse myLikeShop(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                    @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-                                   @RequestParam(name = "limit", defaultValue = "3", required = false) int limit) {
+                                   @RequestParam(name = "limit", defaultValue = "8", required = false) int limit) {
         Student student = userDetails.getMember().getStudent();
         return responseService.getSingleResponse(studentService.readMyLikeShop(student,page,limit));
     }
@@ -40,13 +40,14 @@ public class StudentController {
     @GetMapping("/my-zzimshops")
     public RestResponse myZzimShop(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                    @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-                                   @RequestParam(name = "limit", defaultValue = "3", required = false) int limit) {
+                                   @RequestParam(name = "limit", defaultValue = "8", required = false) int limit) {
         Student student = userDetails.getMember().getStudent();
         return responseService.getSingleResponse(studentService.readMyZzimShop(student,page,limit));
     }
 
     @PostMapping(value = "/profile")//프로필사진업로드
-    public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("thumbnail") MultipartFile thumbnail) {
+    public RestResponse fileUpload(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                   @RequestPart("thumbnail") MultipartFile thumbnail) {
         Student student = userDetails.getMember().getStudent();
         if (student == null) {
             throw new NotStudentException();
