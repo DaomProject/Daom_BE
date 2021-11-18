@@ -9,4 +9,5 @@ public class MenuDto {
     private String name;
     private Long price;
     private Boolean isRecommend;
+    private String description;
 }

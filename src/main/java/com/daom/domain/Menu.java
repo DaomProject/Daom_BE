@@ -28,6 +28,9 @@ public class Menu {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, length = 500)
+    private String description; // 메뉴 설명
+
     @Column(nullable = false)
     private Long price;
 
@@ -43,15 +46,17 @@ public class Menu {
         this.name = menuDto.getName();
         this.price = menuDto.getPrice();
         this.isRecommend = menuDto.getIsRecommend();
+        this.description = menuDto.getDescription();
         this.thumbnail = null;
     }
 
     @Builder
-    public Menu(UploadFile thumbnail, String name, Long price, Boolean isRecommend) {
+    public Menu(UploadFile thumbnail, String name, Long price, Boolean isRecommend, String description) {
         this.thumbnail = thumbnail;
         this.name = name;
         this.price = price;
         this.isRecommend = isRecommend;
+        this.description = description;
     }
 
     public void addThumbnail(UploadFile thumbnail) {
@@ -70,6 +75,8 @@ public class Menu {
                 .price(price)
                 .isRecommend(isRecommend)
                 .thumbnail(thumbnailSavedName)
+                .description(description)
                 .build();
     }
+
 }
