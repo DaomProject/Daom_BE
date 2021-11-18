@@ -154,9 +154,6 @@ public class ShopService {
         //태그 삭제
         shop.detachAllShopTag();
 
-        //저장되어있던 찜 삭제
-        List<Zzim> zzimList = zzimRepository.findByShopId(id);
-
         // DB 삭제
         shopRepository.delete(shop);
 
