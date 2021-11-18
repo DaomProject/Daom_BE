@@ -65,4 +65,15 @@ public class AuthController {
 
     }
 
+    @GetMapping("/is-student")
+    public RestResponse isStudent(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        Member member = userDetails.getMember();
+
+        if(member.getStudent() == null){
+            return responseService.getSuccessResponse("shop");
+        }else{
+            return responseService.getSuccessResponse("student");
+        }
+    }
+
 }
