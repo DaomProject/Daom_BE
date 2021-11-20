@@ -38,7 +38,7 @@ public class TestController {
         authSession.setAttribute(AUTH_NUM, authKey);
         authSession.setMaxInactiveInterval(180);// 세션 유지 시간 : 180초
         try {
-            mailService.sendMail(mailDto.getEmail(), "[다옴] 회원가입 인증번호", "다옴 회원가입 인증번호 : " + authKey)
+            mailService.sendMail(mailDto.getEmail(), "[다옴] 회원가입 인증번호", "다옴 회원가입 인증번호 : " + authKey);
         } catch (MessagingException messagingException) {
             throw new MessageApiException();
         }
@@ -53,13 +53,13 @@ public class TestController {
 //        log.info("실제 키 = {}", authKey);
 //        log.info("내가 보낸 키 = {}", myAuthKey);
         if (authKey == null) {
-            throw new TimeoutException();
+            return responseService.getFailResponse(-0, "인증번호 세션이 만료되었습니다.");
         }
 
         if (authKey.equals(myAuthKey)) {
             return responseService.getSuccessResponse();
         } else {
-            throw new RuntimeException("not match");
+            return responseService.getFailResponse(-0, "인증번호가 일치하지 않습니다.");
         }
 
     }

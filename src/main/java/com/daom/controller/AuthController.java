@@ -35,13 +35,13 @@ public class AuthController {
     }
 
     @PostMapping("/join/check/username")
-    public RestResponse checkDupUsername(@RequestBody UsernameDupCheckDto dupCheckDto){
+    public RestResponse checkDupUsername(@RequestBody UsernameDupCheckDto dupCheckDto) {
         memberService.checkDupUsername(dupCheckDto.getUsername());
         return responseService.getSuccessResponse();
     }
 
     @PostMapping("/join/check/nickname")
-    public RestResponse checkDupNickname(@RequestBody NicknameDupCheckDto dupCheckDto){
+    public RestResponse checkDupNickname(@RequestBody NicknameDupCheckDto dupCheckDto) {
         memberService.checkDupNickname(dupCheckDto.getNickname());
         return responseService.getSuccessResponse();
     }
@@ -54,10 +54,11 @@ public class AuthController {
         }
         return responseService.getSingleResponse(jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
     }
+
     @PutMapping("/updatepw/{id}")
     public RestResponse update(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UpdatePwDto updatePwDto) {//로그인한 멤버 정보 받아오기
         Member member = memberService.findById(id);
-        if(!member.getId().equals(userDetails.getMember().getId())){
+        if (!member.getId().equals(userDetails.getMember().getId())) {
             throw new NotAuthorityThisJobException();//로그인한 사람만 할수있는일이니까
         }
         memberService.UpdatePassword(id, updatePwDto.getPassword());
@@ -66,14 +67,25 @@ public class AuthController {
     }
 
     @GetMapping("/is-student")
-    public RestResponse isStudent(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public RestResponse isStudent(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Member member = userDetails.getMember();
 
-        if(member.getStudent() == null){
+        if (member.getStudent() == null) {
             return responseService.getSuccessResponse("shop");
-        }else{
+        } else {
             return responseService.getSuccessResponse("student");
         }
+    }
+
+    @GetMapping("/check")
+    public RestResponse mailCheck(
+            @RequestParam(value = "mail", required = true) String mail,
+            @RequestParam(value = "id", required = false) String id) {
+        // mail만 -> 해당 메일로 가입된 회원 있는지 확인 ( ID찾기에 이용 )
+
+        // id + mail -> 해당 ID와 메일로 가입된 회원 있는지 확인 ( PW찾기에 이용 )
+
+        return responseService.getSuccessResponse();
     }
 
 }

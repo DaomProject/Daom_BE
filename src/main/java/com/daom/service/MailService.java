@@ -15,7 +15,7 @@ public class MailService {
 
     private final JavaMailSender mailSender;
 
-    public boolean sendMail(String email,String title, String content) throws MessagingException {
+    public void sendMail(String email,String title, String content) throws MessagingException {
         MimeMessage msg = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(msg, true, "UTF-8");
         messageHelper.setSubject(title);
