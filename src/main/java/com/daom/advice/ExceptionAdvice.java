@@ -118,4 +118,10 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-2001, "좌표 검색 API 호출이 실패하였습니다.");
     }
 
+    @ExceptionHandler(MessageApiException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestResponse messagingApiException(Exception e){
+        e.printStackTrace();
+        return responseService.getFailResponse(-2002, "메일 시스템에 오류가 발생하였습니다.");
+    }
 }

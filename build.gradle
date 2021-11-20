@@ -35,6 +35,9 @@ dependencies {
 
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
+
+	// 메일 전송
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 test {
