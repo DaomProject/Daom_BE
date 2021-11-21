@@ -80,7 +80,7 @@ public class MemberService {
 
     @Transactional
     public String setTempPassword(MailDto mailDto){
-        Member member = memberRepository.findByMail(mailDto.getEmail()).orElseThrow(NoSuchMemberException::new);
+        Member member = memberRepository.findByMail(mailDto.getMail()).orElseThrow(NoSuchMemberException::new);
         RandomKeyGenerator randomKeyGenerator = new RandomKeyGenerator();
         String randomPassword = randomKeyGenerator.getRamdomPassword(10);
         String encodedPassword = passwordEncoder.encode(randomPassword);

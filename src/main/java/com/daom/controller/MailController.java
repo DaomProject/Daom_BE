@@ -40,7 +40,7 @@ public class MailController {
         authSession.setAttribute(AUTH_NUM, authKey);
         authSession.setMaxInactiveInterval(180);// 세션 유지 시간 : 180초
         try {
-            mailService.sendMail(mailDto.getEmail(), "[다옴] 회원가입 인증번호", "다옴 회원가입 인증번호 : " + authKey);
+            mailService.sendMail(mailDto.getMail(), "[다옴] 회원가입 인증번호", "다옴 회원가입 인증번호 : " + authKey);
         } catch (MessagingException messagingException) {
             throw new MessageApiException();
         }
@@ -53,7 +53,7 @@ public class MailController {
     public RestResponse sendTempPassword(@RequestBody MailDto mailDto){
         String tempPassword = memberService.setTempPassword(mailDto);
         try {
-            mailService.sendMail(mailDto.getEmail(), "[다옴] 임시비밀번호 설정", "다옴 임시 비밀번호 : " + tempPassword);
+            mailService.sendMail(mailDto.getMail(), "[다옴] 임시비밀번호 설정", "다옴 임시 비밀번호 : " + tempPassword);
         } catch (MessagingException messagingException) {
             throw new MessageApiException();
         }
