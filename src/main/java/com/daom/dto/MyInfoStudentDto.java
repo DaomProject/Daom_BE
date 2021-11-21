@@ -11,6 +11,7 @@ public class MyInfoStudentDto {
     private String nickname;
     private String univname;
     private String tel;
+    private String mail;
     private Long admissionYear;
     private Long point;
     private String thumbnail;
@@ -19,20 +20,22 @@ public class MyInfoStudentDto {
     private int likeNum;
 
 
-    public MyInfoStudentDto(Member member){
+    public MyInfoStudentDto(Member member) {
         Student student = member.getStudent();
         this.username = member.getUsername();
         this.nickname = member.getNickname();
         this.tel = member.getTel();
+        this.mail = member.getMail();
 
         Univ univ = student.getUniv();
         this.univname = univ.getName();
         this.admissionYear = student.getAdmissionYear();
         this.point = student.getPoint();
         this.level = student.getLevel();
-        if(student.getThumbnail() != null){
+
+        if (student.getThumbnail() != null) {
             this.thumbnail = "http://localhost:8080/file?filename=" + student.getThumbnail().getSavedName();
-        }else{
+        } else {
             this.thumbnail = null;
         }
 

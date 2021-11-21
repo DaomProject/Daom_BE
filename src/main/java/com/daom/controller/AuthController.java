@@ -46,6 +46,12 @@ public class AuthController {
         return responseService.getSuccessResponse();
     }
 
+    @PostMapping("/join/check/mail")
+    public RestResponse checkDupMail(@RequestBody EmailDupCheckDto dupCheckDto) {
+        memberService.checkDupEmail(dupCheckDto.getMail());
+        return responseService.getSuccessResponse();
+    }
+
     @PostMapping("/login")
     public RestResponse login(@RequestBody LoginDto loginDto) {
         Member member = memberService.findByUsername(loginDto.getUsername());

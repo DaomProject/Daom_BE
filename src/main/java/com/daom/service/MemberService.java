@@ -29,6 +29,7 @@ public class MemberService {
 
         checkDupUsername(studentJoinDto.getUsername());
         checkDupNickname(studentJoinDto.getNickname());
+        checkDupEmail(studentJoinDto.getMail());
 
         // 멤버 생성
         Member newMember = Member.builder()
@@ -62,6 +63,7 @@ public class MemberService {
 
         checkDupUsername(memberJoinDto.getUsername());
         checkDupNickname(memberJoinDto.getNickname());
+        checkDupEmail(memberJoinDto.getMail());
 
         Member newMember = Member.builder()
                 .username(memberJoinDto.getUsername())
@@ -104,7 +106,7 @@ public class MemberService {
         return passwordEncoder.matches(savedPassword, enteredPassword);
     }
 
-    // 중복 확인 ( 닉네임, 아이디 )
+    // 중복 확인 ( 닉네임, 아이디, 이메일)
     public void checkDupNickname(String nickname) {
         Member existMember = memberRepository.findByNickname(nickname).orElse(null);
 
@@ -120,6 +122,14 @@ public class MemberService {
         if (existMember != null) {
             //기존에 회원 이름과 동일한 회원이 존재한다면
             throw new UsernameDuplicationException();
+        }
+    }
+
+    public void checkDupEmail(String mail){
+        Member existMember = memberRepository.findByMail(mail).orElse(null);
+
+        if(existMember != null){
+            throw new MailDuplicationException();
         }
     }
 
