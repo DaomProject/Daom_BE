@@ -2,7 +2,6 @@ package com.daom.service;
 
 import com.daom.domain.*;
 import com.daom.dto.MemberJoinDto;
-import com.daom.dto.MyInfoStudentDto;
 import com.daom.dto.StudentJoinDto;
 import com.daom.exception.*;
 import com.daom.repository.*;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +35,7 @@ public class MemberService {
                 .nickname(studentJoinDto.getNickname())
                 .tel(studentJoinDto.getTel())
                 .role(Role.STUDENT)
+                .mail(studentJoinDto.getMail())
                 .build();
 
         // 학교 조회
@@ -68,6 +67,7 @@ public class MemberService {
                 .nickname(memberJoinDto.getNickname())
                 .tel(memberJoinDto.getTel())
                 .role(Role.SHOP)
+                .mail(memberJoinDto.getMail())
                 .build();
 
         memberRepository.save(newMember);
@@ -84,7 +84,7 @@ public class MemberService {
     }
 
     public Member findByUsername(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(NoSuchUserException::new);
+        return memberRepository.findByUsername(username).orElseThrow(NoSuchMemberException::new);
     }
 
     public boolean passwordMatch(String savedPassword, String enteredPassword) {
@@ -116,7 +116,7 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(newPw);
         if (existMember == null) {
             //기존에 회원 이름과 동일한 회원이 존재하지 않는다면
-            throw new NoSuchUserException();
+            throw new NoSuchMemberException();
         }
         existMember.changePw(encodedPassword);
 
@@ -138,5 +138,10 @@ public class MemberService {
             return false;
         }
         return true;
+    }
+
+    public String getUsernameByMail(String mail) {
+        Member member = memberRepository.findByMail(mail).orElseThrow(NoSuchMemberException::new);
+        return member.getUsername();
     }
 }

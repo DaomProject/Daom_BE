@@ -11,12 +11,14 @@ public class MemberJoinDto {
     private String password;
     private String nickname;
     private String tel;
+    private String mail;
 
     @Builder
-    public MemberJoinDto(String username, String password, String nickname, String tel) {
+    public MemberJoinDto(String username, String password, String nickname, String tel, String mail) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.tel = tel;
+        this.mail = mail;
     }
 }

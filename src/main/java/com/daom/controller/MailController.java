@@ -23,8 +23,8 @@ import java.util.concurrent.TimeoutException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/test")
-public class TestController {
+@RequestMapping("/mail")
+public class MailController {
     private final ResponseService responseService;
     private static final String AUTH_NUM = "AUTH_NUM";
     private final MailService mailService;
@@ -49,9 +49,6 @@ public class TestController {
     @GetMapping("/check")
     public RestResponse checkAuth(@RequestParam(value = "auth") String myAuthKey,
                                   @SessionAttribute(name = AUTH_NUM, required = false) String authKey) {
-
-//        log.info("실제 키 = {}", authKey);
-//        log.info("내가 보낸 키 = {}", myAuthKey);
         if (authKey == null) {
             return responseService.getFailResponse(-0, "인증번호 세션이 만료되었습니다.");
         }
@@ -60,6 +57,5 @@ public class TestController {
         } else {
             return responseService.getFailResponse(-0, "인증번호가 일치하지 않습니다.");
         }
-
     }
 }

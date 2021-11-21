@@ -91,4 +91,10 @@ public class AuthController {
         result = memberService.checkJoinByMail(mail);
         return responseService.getSuccessResponse(Boolean.toString(result));
     }
+
+    @GetMapping("/username")
+    public RestResponse getUsernameByMail(@RequestParam(value = "mail", required = true) String mail){
+        return responseService.getSuccessResponse(memberService.getUsernameByMail(mail));
+    }
+
 }
