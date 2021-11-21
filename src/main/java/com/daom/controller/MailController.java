@@ -4,6 +4,7 @@ import com.daom.dto.MailDto;
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.MessageApiException;
 import com.daom.service.MailService;
+import com.daom.service.MemberService;
 import com.daom.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,9 @@ public class MailController {
     private final ResponseService responseService;
     private static final String AUTH_NUM = "AUTH_NUM";
     private final MailService mailService;
+    private final MemberService memberService;
 
-    @PostMapping("/send")
+    @PostMapping("/send/register")
     public RestResponse sendMail(@RequestBody MailDto mailDto, HttpServletRequest request) {
 
         HttpSession authSession = request.getSession();
@@ -39,6 +41,19 @@ public class MailController {
         authSession.setMaxInactiveInterval(180);// 세션 유지 시간 : 180초
         try {
             mailService.sendMail(mailDto.getEmail(), "[다옴] 회원가입 인증번호", "다옴 회원가입 인증번호 : " + authKey);
+        } catch (MessagingException messagingException) {
+            throw new MessageApiException();
+        }
+
+        return responseService.getSuccessResponse();
+    }
+
+    // 반드시 메일인증 이후에 사용해야한다.
+    @PostMapping("/send/temp-password")
+    public RestResponse sendTempPassword(@RequestBody MailDto mailDto){
+        String tempPassword = memberService.setTempPassword(mailDto);
+        try {
+            mailService.sendMail(mailDto.getEmail(), "[다옴] 임시비밀번호 설정", "다옴 임시 비밀번호 : " + tempPassword);
         } catch (MessagingException messagingException) {
             throw new MessageApiException();
         }

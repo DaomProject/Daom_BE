@@ -1,10 +1,12 @@
 package com.daom.service;
 
 import com.daom.domain.*;
+import com.daom.dto.MailDto;
 import com.daom.dto.MemberJoinDto;
 import com.daom.dto.StudentJoinDto;
 import com.daom.exception.*;
 import com.daom.repository.*;
+import com.daom.utils.RandomKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -75,6 +77,17 @@ public class MemberService {
     }
 
     @Transactional
+    public String setTempPassword(MailDto mailDto){
+        Member member = memberRepository.findByMail(mailDto.getEmail()).orElseThrow(NoSuchMemberException::new);
+        RandomKeyGenerator randomKeyGenerator = new RandomKeyGenerator();
+        String randomPassword = randomKeyGenerator.getRamdomPassword(10);
+        String encodedPassword = passwordEncoder.encode(randomPassword);
+
+        member.changePw(encodedPassword);
+        return randomPassword;
+    }
+
+    @Transactional
     public void delete(Member member) {
         memberRepository.delete(member);
     }
@@ -111,17 +124,12 @@ public class MemberService {
     }
 
     @Transactional
-    public Member UpdatePassword(Long memberId, String newPw) {
-        Member existMember = memberRepository.findById(memberId).orElse(null);
+    public Member updatePassword(Long memberId, String newPw) {
+        Member existMember = memberRepository.findById(memberId).orElseThrow(NoSuchMemberException::new);
         String encodedPassword = passwordEncoder.encode(newPw);
-        if (existMember == null) {
-            //기존에 회원 이름과 동일한 회원이 존재하지 않는다면
-            throw new NoSuchMemberException();
-        }
         existMember.changePw(encodedPassword);
 
         return existMember;
-
     }
 
     public boolean checkJoinByMail(String mail) {

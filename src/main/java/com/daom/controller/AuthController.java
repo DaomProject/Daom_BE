@@ -55,28 +55,6 @@ public class AuthController {
         return responseService.getSingleResponse(jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
     }
 
-    @PutMapping("/updatepw/{id}")
-    public RestResponse update(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UpdatePwDto updatePwDto) {//로그인한 멤버 정보 받아오기
-        Member member = memberService.findById(id);
-        if (!member.getId().equals(userDetails.getMember().getId())) {
-            throw new NotAuthorityThisJobException();//로그인한 사람만 할수있는일이니까
-        }
-        memberService.UpdatePassword(id, updatePwDto.getPassword());
-        return responseService.getSuccessResponse();
-
-    }
-
-    @GetMapping("/is-student")
-    public RestResponse isStudent(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Member member = userDetails.getMember();
-
-        if (member.getStudent() == null) {
-            return responseService.getSuccessResponse("shop");
-        } else {
-            return responseService.getSuccessResponse("student");
-        }
-    }
-
     @GetMapping("/check")
     public RestResponse mailCheck(
             @RequestParam(value = "mail", required = true) String mail,
