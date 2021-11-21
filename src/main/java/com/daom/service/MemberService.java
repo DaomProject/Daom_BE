@@ -22,7 +22,6 @@ public class MemberService {
     private final UnivRepository univRepository;
 
 
-
     @Transactional
     public Long saveStudent(StudentJoinDto studentJoinDto) {
         // 비밀번호 인코딩
@@ -33,12 +32,12 @@ public class MemberService {
 
         // 멤버 생성
         Member newMember = Member.builder()
-            .username(studentJoinDto.getUsername())
-            .password(encodedPassword)
-            .nickname(studentJoinDto.getNickname())
-            .tel(studentJoinDto.getTel())
-            .role(Role.STUDENT)
-            .build();
+                .username(studentJoinDto.getUsername())
+                .password(encodedPassword)
+                .nickname(studentJoinDto.getNickname())
+                .tel(studentJoinDto.getTel())
+                .role(Role.STUDENT)
+                .build();
 
         // 학교 조회
         Univ findUniv = univRepository.findByName(studentJoinDto.getUnivname()).orElseThrow(UnivNameNotFoundException::new);
@@ -93,7 +92,7 @@ public class MemberService {
     }
 
     // 중복 확인 ( 닉네임, 아이디 )
-    public void checkDupNickname(String nickname){
+    public void checkDupNickname(String nickname) {
         Member existMember = memberRepository.findByNickname(nickname).orElse(null);
 
         if (existMember != null) {
@@ -102,7 +101,7 @@ public class MemberService {
         }
     }
 
-    public void checkDupUsername(String username){
+    public void checkDupUsername(String username) {
         Member existMember = memberRepository.findByUsername(username).orElse(null);
 
         if (existMember != null) {
@@ -125,5 +124,19 @@ public class MemberService {
 
     }
 
+    public boolean checkJoinByMail(String mail) {
+        Member member = memberRepository.findByMail(mail).orElse(null);
+        if (member == null) {
+            return false;
+        }
+        return true;
+    }
 
+    public boolean checkJoinByUsernameAndMail(String username, String mail) {
+        Member member = memberRepository.findByUsernameAndMail(username, mail).orElse(null);
+        if (member == null) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -15,8 +15,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             " left join fetch m.student s" +
             " where m.username = :username")
     Optional<Member> findByUsernameWithStudent(@Param("username") String username);
+
     Optional<Member> findByUsername(String username);
+
     Optional<Member> findByNickname(String nickname);
+
+    Optional<Member> findByMail(String mail);
+
+    Optional<Member> findByUsernameAndMail(String username, String mail);
 
     @EntityGraph(attributePaths = {"student"}, type = EntityGraph.EntityGraphType.LOAD)
     Optional<Member> findWithStudentById(Long memberId);

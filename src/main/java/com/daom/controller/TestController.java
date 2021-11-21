@@ -55,7 +55,6 @@ public class TestController {
         if (authKey == null) {
             return responseService.getFailResponse(-0, "인증번호 세션이 만료되었습니다.");
         }
-
         if (authKey.equals(myAuthKey)) {
             return responseService.getSuccessResponse();
         } else {

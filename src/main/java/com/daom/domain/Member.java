@@ -22,6 +22,9 @@ public class Member extends BaseTimeEntity{
     private String nickname;
 
     @Column(nullable = false)
+    private String mail;
+
+    @Column(nullable = false)
     private String tel;
 
     @Column(nullable = false)

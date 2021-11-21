@@ -80,12 +80,15 @@ public class AuthController {
     @GetMapping("/check")
     public RestResponse mailCheck(
             @RequestParam(value = "mail", required = true) String mail,
-            @RequestParam(value = "id", required = false) String id) {
+            @RequestParam(value = "username", required = false) String username) {
+        boolean result = false;
         // mail만 -> 해당 메일로 가입된 회원 있는지 확인 ( ID찾기에 이용 )
-
+        if (username != null) {
+            result = memberService.checkJoinByUsernameAndMail(username, mail);
+            return responseService.getSuccessResponse(Boolean.toString(result));
+        }
         // id + mail -> 해당 ID와 메일로 가입된 회원 있는지 확인 ( PW찾기에 이용 )
-
-        return responseService.getSuccessResponse();
+        result = memberService.checkJoinByMail(mail);
+        return responseService.getSuccessResponse(Boolean.toString(result));
     }
-
 }
