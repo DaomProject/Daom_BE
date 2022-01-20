@@ -43,6 +43,7 @@ public class InitDb {
                         .nickname("학생Test1")
                         .password("12345")
                         .univName("전북대학교")
+                        .mail("test2@naver.com")
                         .admissionYear(2016L)
                         .tel("010-3333-2222")
                         .build());
@@ -52,6 +53,7 @@ public class InitDb {
                         .username("test")
                         .password("12345")
                         .nickname("업체Test1")
+                        .mail("test@naver.com")
                         .tel("010-2222-3333")
                         .build());
     }
