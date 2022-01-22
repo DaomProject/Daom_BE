@@ -33,6 +33,7 @@ public class ReviewController {
                                      @RequestPart(value = "photos", required = false) List<MultipartFile> photos) {
         Member member = userDetails.getMember();
 
+        // 해당 상점을 최근에 3일 이내에 방문 했을 시에만 리뷰 작성 가능
         reviewService.createReview(member, shopId, reviewCreateDto, photos);
 
         return responseService.getSuccessResponse("리뷰 작성 완료");

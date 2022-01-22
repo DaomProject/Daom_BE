@@ -33,7 +33,6 @@ public class ReviewService {
     private final StudentLikeUnlikeReviewRepository studentLikeUnlikeReviewRepository;
 
     @Transactional
-
     public void createReview(Member loginMember, Long shopId, ReviewCreateDto reviewCreateDto, List<MultipartFile> photos) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);
 

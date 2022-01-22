@@ -1,5 +1,6 @@
 package com.daom.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,11 @@ public class StudentVisitShop {
 
     @Column(nullable = false, name = "visit_date")
     private LocalDateTime visitDate;
+
+    @Builder
+    public StudentVisitShop(Student student, Shop shop, LocalDateTime visitDate) {
+        this.student = student;
+        this.shop = shop;
+        this.visitDate = visitDate;
+    }
 }
