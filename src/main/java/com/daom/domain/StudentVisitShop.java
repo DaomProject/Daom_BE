@@ -27,10 +27,14 @@ public class StudentVisitShop {
     @Column(nullable = false, name = "visit_date")
     private LocalDateTime visitDate;
 
+    @Column(nullable = false)
+    private boolean isReview;
+
     @Builder
     public StudentVisitShop(Student student, Shop shop, LocalDateTime visitDate) {
         this.student = student;
         this.shop = shop;
         this.visitDate = visitDate;
+        isReview = false;
     }
 }

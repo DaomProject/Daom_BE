@@ -10,6 +10,7 @@ import com.daom.dto.response.RestResponse;
 import com.daom.exception.NotAuthorityThisJobException;
 import com.daom.service.ResponseService;
 import com.daom.service.ReviewService;
+import com.daom.service.VisitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
     private final ResponseService responseService;
+    private final VisitService visitService;
 
     @PostMapping("/{shopId}")
     public RestResponse createReview(@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -61,13 +63,13 @@ public class ReviewController {
 
     @PostMapping("/{reviewId}/like")
     public RestResponse likeReview(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                     @PathVariable("reviewId") Long reviewId){
+                                   @PathVariable("reviewId") Long reviewId) {
         Student student = userDetails.getMember().getStudent();
-        if(student == null){
+        if (student == null) {
             throw new NotAuthorityThisJobException(); // 학생 계정만 리뷰에대한 좋아요, 싫어요 할 수 있다.
         }
         boolean done = reviewService.like(reviewId, student, true);
-        if(!done){
+        if (!done) {
             return responseService.getSuccessResponse("리뷰 좋아요 취소");
         }
 
@@ -76,13 +78,13 @@ public class ReviewController {
 
     @PostMapping("/{reviewId}/unlike")
     public RestResponse unlikeReview(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                   @PathVariable("reviewId") Long reviewId){
+                                     @PathVariable("reviewId") Long reviewId) {
         Student student = userDetails.getMember().getStudent();
-        if(student == null){
+        if (student == null) {
             throw new NotAuthorityThisJobException(); // 학생 계정만 리뷰에대한 좋아요, 싫어요 할 수 있다.
         }
         boolean done = reviewService.like(reviewId, student, false);
-        if(!done){
+        if (!done) {
             return responseService.getSuccessResponse("리뷰 싫어요 취소");
         }
 

@@ -21,17 +21,19 @@ public class VisitController {
 
     @PostMapping("/{shopId}")
     public RestResponse visit(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                @PathVariable("shopId") Long shopId){
+                              @PathVariable("shopId") Long shopId) {
         Member loginMember = userDetails.getMember();
         visitService.visit(loginMember, shopId);
         return responseService.getSuccessResponse();
     }
 
     @GetMapping("/check/{shopId}")
-    public RestResponse isVisit(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                @PathVariable("shopId") Long shopId){
+    public RestResponse isVisitInPeriod(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                        @PathVariable("shopId") Long shopId,
+                                        @RequestParam(value = "period", defaultValue = "3") int period
+    ) {
         Member loginMember = userDetails.getMember();
-        boolean visit = visitService.isVisit(loginMember, shopId);
+        boolean visit = visitService.isVisitInPeriod(loginMember, shopId, period);
 
         return responseService.getSingleResponse(visit);
     }

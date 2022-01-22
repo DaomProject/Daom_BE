@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -18,7 +21,12 @@ public class VisitService {
     private final StudentVisitShopRepository studentVisitShopRepository;
     private final ShopRepository shopRepository;
 
-    public boolean isVisit(Member loginMember, Long shopId) {
+    public boolean isVisitInPeriod(Member loginMember, Long shopId, int period) {
+        List<StudentVisitShop> visitInPeriod = getVisitInPeriod(loginMember, shopId, period);
+        return !visitInPeriod.isEmpty();
+    }
+
+    public List<StudentVisitShop> getVisitInPeriod(Member loginMember, Long shopId, int period) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);
 
         if (loginMember.getRole() != Role.STUDENT) {
@@ -26,8 +34,14 @@ public class VisitService {
         }
         Student student = loginMember.getStudent();
 
-        StudentVisitShop studentVisitShop = studentVisitShopRepository.findByStudentAndShop(student, shop).orElse(null);
-        return studentVisitShop != null;
+        List<StudentVisitShop> studentVisitShopList = studentVisitShopRepository.findAllByStudentAndShop(student, shop);
+        LocalDateTime now = LocalDateTime.now();
+
+        return studentVisitShopList.stream()
+                .filter(studentVisitShop -> now.isAfter(studentVisitShop.getVisitDate())
+                        && now.isBefore(studentVisitShop.getVisitDate().plusDays(period)))
+                .sorted(Comparator.comparing(StudentVisitShop::getVisitDate))
+                .collect(Collectors.toList());
     }
 
     @Transactional
