@@ -44,6 +44,23 @@ public class VisitService {
                 .collect(Collectors.toList());
     }
 
+    public List<StudentVisitShop> getVisitCanBeReviewed(Member loginMember, Long shopId, int period) {
+        Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);
+
+        if (loginMember.getRole() != Role.STUDENT) {
+            throw new NotAuthorityThisJobException();
+        }
+        Student student = loginMember.getStudent();
+
+        List<StudentVisitShop> studentVisitShopList = studentVisitShopRepository.findAllByStudentAndShop(student, shop);
+        LocalDateTime now = LocalDateTime.now();
+
+        return studentVisitShopList.stream()
+                .filter(studentVisitShop -> studentVisitShop.canReview(period))
+                .sorted(Comparator.comparing(StudentVisitShop::getVisitDate))
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void visit(Member loginMember, Long shopId) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(NoSuchShopException::new);

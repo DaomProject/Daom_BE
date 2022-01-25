@@ -3,11 +3,13 @@ package com.daom.controller;
 import com.daom.config.auth.UserDetailsImpl;
 import com.daom.domain.Member;
 import com.daom.domain.Student;
+import com.daom.domain.StudentVisitShop;
 import com.daom.dto.ReviewCreateDto;
 import com.daom.dto.ReviewDtosAndCount;
 import com.daom.dto.ReviewReadDto;
 import com.daom.dto.response.RestResponse;
 import com.daom.exception.NotAuthorityThisJobException;
+import com.daom.exception.CantReviewThisShopException;
 import com.daom.service.ResponseService;
 import com.daom.service.ReviewService;
 import com.daom.service.VisitService;
@@ -24,6 +26,8 @@ import java.util.List;
 @RequestMapping("/reviews")
 @RestController
 public class ReviewController {
+    public static final int REVIEW_PERIOD = 3; // 리뷰 작성 가능 기간
+
     private final ReviewService reviewService;
     private final ResponseService responseService;
     private final VisitService visitService;
@@ -36,7 +40,13 @@ public class ReviewController {
         Member member = userDetails.getMember();
 
         // 해당 상점을 최근에 3일 이내에 방문 했을 시에만 리뷰 작성 가능
-        reviewService.createReview(member, shopId, reviewCreateDto, photos);
+        List<StudentVisitShop> visitInPeriod = visitService.getVisitCanBeReviewed(member, shopId, REVIEW_PERIOD);
+        if(!visitInPeriod.isEmpty()){
+            reviewService.createReview(member, shopId, reviewCreateDto, photos);
+            visitInPeriod.get(0).review(); // 가장 오래된 방문 기록에서 리뷰 체크하도록 작성
+        }else{
+            throw new CantReviewThisShopException();
+        }
 
         return responseService.getSuccessResponse("리뷰 작성 완료");
     }

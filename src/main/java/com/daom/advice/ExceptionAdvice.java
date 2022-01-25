@@ -105,6 +105,12 @@ public class ExceptionAdvice {
         return responseService.getFailResponse(-1014, "정해지지않은 정렬방법입니다.");
     }
 
+    @ExceptionHandler(CantReviewThisShopException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse cantReviewThisShopException() {
+        return responseService.getFailResponse(-1015, "리뷰작성 가능한 방문이 존재하지 않습니다.");
+    }
+
     @ExceptionHandler(MailDuplicationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public RestResponse mailDuplicationException() {

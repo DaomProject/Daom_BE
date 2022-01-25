@@ -37,4 +37,19 @@ public class StudentVisitShop {
         this.visitDate = visitDate;
         isReview = false;
     }
+
+    public void review() {
+        if (!isReview) {
+            isReview = true;
+        }
+    }
+
+    public boolean canReview(int period) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(visitDate) && now.isBefore(visitDate.plusDays(period)) && !isReview) {
+            return true;
+        }
+        return false;
+    }
 }
