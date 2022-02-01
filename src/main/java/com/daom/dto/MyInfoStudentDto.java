@@ -3,6 +3,7 @@ package com.daom.dto;
 import com.daom.domain.Member;
 import com.daom.domain.Student;
 import com.daom.domain.Univ;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
@@ -19,27 +20,21 @@ public class MyInfoStudentDto {
     private int reviewNum;
     private int likeNum;
 
-
-    public MyInfoStudentDto(Member member) {
-        Student student = member.getStudent();
-        this.username = member.getUsername();
-        this.nickname = member.getNickname();
-        this.tel = member.getTel();
-        this.mail = member.getMail();
-
-        Univ univ = student.getUniv();
-        this.univname = univ.getName();
-        this.admissionYear = student.getAdmissionYear();
-        this.point = student.getPoint();
-        this.level = student.getLevel();
-
-        if (student.getThumbnail() != null) {
-            this.thumbnail = "http://localhost:8080/file?filename=" + student.getThumbnail().getSavedName();
-        } else {
-            this.thumbnail = null;
-        }
-
-        reviewNum = 0;
-        likeNum = 0;
+    @Builder
+    public MyInfoStudentDto(String username, String nickname, String univname, String tel, String mail,
+                            Long admissionYear, Long point, String thumbnail,
+                            int level, int reviewNum, int likeNum) {
+        this.username = username;
+        this.nickname = nickname;
+        this.univname = univname;
+        this.tel = tel;
+        this.mail = mail;
+        this.admissionYear = admissionYear;
+        this.point = point;
+        this.thumbnail = thumbnail;
+        this.level = level;
+        //TODO reviewNum, likeNum은 아직 0으로만 설정. 이후에 추가시 수정 필요
+        this.reviewNum = 0;
+        this.likeNum = 0;
     }
 }

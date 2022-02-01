@@ -50,15 +50,33 @@ public class StudentService {
     }
 
     public MyInfoStudentDto myInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(NoSuchStudentException::new);
-        return new MyInfoStudentDto(member);
+        Member nowMember = memberRepository.findById(memberId).orElseThrow(NoSuchStudentException::new);
+        Student nowStudent = nowMember.getStudent();
+
+        UploadFile nowStudentThumb = nowStudent.getThumbnail();
+        String thumbUrl = null;
+        if (nowStudentThumb != null) {
+            String nowStudentThumbName = nowStudentThumb.getSavedName();
+            thumbUrl = fileCloudStorage.getUrl(nowStudentThumbName);
+        }
+
+        return MyInfoStudentDto.builder()
+                .username(nowMember.getUsername())
+                .nickname(nowMember.getNickname())
+                .tel(nowMember.getTel())
+                .mail(nowMember.getMail())
+                .univname(nowStudent.getUniv().getName())
+                .admissionYear(nowStudent.getAdmissionYear())
+                .point(nowStudent.getPoint())
+                .level(nowStudent.getLevel())
+                .thumbnail(thumbUrl).build();
     }
 
     public List<ShopSimpleDto> readMyLikeShop(Student student, int page, int limit) {
         Pageable pageable = PageRequest.of(page, limit);
 
         List<StudentLikeShop> list
-                = studentLikeShopRepository.findByStudent(pageable,student);
+                = studentLikeShopRepository.findByStudent(pageable, student);
         List<ShopSimpleDto> shops = new ArrayList<>();
 
         if (!list.isEmpty()) {
